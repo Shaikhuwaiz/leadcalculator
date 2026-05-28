@@ -1,0 +1,5 @@
+Django>=6.0.4
+django-ninja
+gspread
+oauth2client
+gunicorn
