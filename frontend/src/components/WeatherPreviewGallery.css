@@ -1,0 +1,24 @@
+.weather-carousel-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.carousel-btn {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.12);
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.carousel-btn:hover {
+    background: rgba(255,255,255,0.22);
+    transform: scale(1.08);
+}

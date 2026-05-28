@@ -1,0 +1,40 @@
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(56, 189, 248, 0.08),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(168, 85, 247, 0.08),
+      transparent 35%
+    ),
+    linear-gradient(
+      180deg,
+      #020617 0%,
+      #071226 45%,
+      #0b1730 100%
+    );
+
+  color: #f8fafc;
+  font-family: "Inter", sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Ensure React root fills entire viewport */
+#root {
+  display: flex;
+  flex-direction: column;
+}
