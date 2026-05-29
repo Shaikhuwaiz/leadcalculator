@@ -54,7 +54,7 @@ export default function App() {
   // extras_texts removed (unused state)
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/leadtime")
+   fetch(`${import.meta.env.VITE_API_URL}/api/leadtime`)
       .then((res) => res.json())
       .then((res) => {
         setData(res.data);

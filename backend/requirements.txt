@@ -3,3 +3,4 @@ django-ninja
 gspread
 oauth2client
 gunicorn
+django-cors-headers
