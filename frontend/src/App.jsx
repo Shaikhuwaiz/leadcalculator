@@ -54,7 +54,8 @@ export default function App() {
   // extras_texts removed (unused state)
 
   useEffect(() => {
-   fetch(`${import.meta.env.VITE_API_URL}/api/leadtime`)
+    const apiBase = (import.meta.env.VITE_API_URL || "").replace(/\/+$/g, "");
+    fetch(`${apiBase}/api/leadtime`)
       .then((res) => res.json())
       .then((res) => {
         setData(res.data);
