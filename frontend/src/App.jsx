@@ -152,26 +152,36 @@ export default function App() {
         </nav>
 
         {activeTab === "home" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 30 }}>
-            <div style={{ position: "relative", zIndex: 10 }}>
-              <h1 style={{ marginBottom: 30 }}>Leadtime Dashboard</h1>
-
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 20, flexWrap: "wrap" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: 18, minWidth: "280px" }}>
-                  <div style={{ fontSize: 20, color: "#cbd5e1" }}>Date: <strong style={{ color: "white" }}>{todayLabel}</strong></div>
-                  <Select options={options} value={options.find((o) => o.value === selected)} onChange={(opt) => setSelected(opt?.value || "")} placeholder={loading ? "Loading..." : "Select Leadtime Type..."} menuPlacement="auto" styles={customSelectStyles} menuPortalTarget={document.body} menuPosition="fixed" isSearchable={false} />
+          <div className="dashboard-grid" style={{ position: "relative", zIndex: 10 }}>
+            <div className="dashboard-left">
+              <div className="dashboard-card" style={{ display: "grid", gap: 20 }}>
+                <div style={{ fontSize: 20, color: "#cbd5e1" }}>
+                  Date: <strong style={{ color: "white" }}>{todayLabel}</strong>
                 </div>
+                <Select
+                  options={options}
+                  value={options.find((o) => o.value === selected)}
+                  onChange={(opt) => setSelected(opt?.value || "")}
+                  placeholder={loading ? "Loading..." : "Select Leadtime Type..."}
+                  menuPlacement="auto"
+                  styles={customSelectStyles}
+                  menuPortalTarget={document.body}
+                  menuPosition="fixed"
+                  isSearchable={false}
+                />
+              </div>
 
-                {selected && (
-                  <div style={{ padding: 25, background: "rgba(56,189,248,0.1)", border: "1px solid rgba(56,189,248,0.3)", borderRadius: 15, minWidth: 280, minHeight: 120 }}>
-                    <div style={{ fontSize: 14, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1, fontWeight: 600 }}>{selectedProgram?.code} Leadtime</div>
-                    <div style={{ fontSize: 42, fontWeight: "bold", color: selectedDate === "TBD" ? "#94a3b8" : "#38bdf8", marginTop: 5 }}>{selectedDate}</div>
-                  </div>
-                )}
+              <div className="dashboard-card leadtime-card">
+                <div style={{ fontSize: 14, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1, fontWeight: 600 }}>
+                  Leadtime Result
+                </div>
+                <div style={{ fontSize: 42, fontWeight: "800", color: selectedDate === "TBD" ? "#94a3b8" : "#38bdf8", marginTop: 10, lineHeight: 1 }}>
+                  {selectedDate}
+                </div>
               </div>
             </div>
 
-            <div style={{ maxWidth: "100%", overflow: "hidden" }}>
+            <div className="weather-panel">
               <WeatherScene />
             </div>
           </div>

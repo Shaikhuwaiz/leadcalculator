@@ -57,10 +57,9 @@ html, body, #root {
 
 /* Utility container to center content and limit max width */
 .container {
-  width: 100%;
-  max-width: 1200px;
+  width: min(95vw, 1800px);
   margin: 0 auto;
-  padding: 1rem;
+  padding: clamp(16px, 2vw, 32px);
 }
 
 /* Make media elements responsive */
@@ -85,5 +84,97 @@ img, picture, svg, video {
 @media (max-width: 600px) {
   .container {
     padding: 0.75rem;
+  }
+}
+
+.dashboard-grid {
+  display: flex;
+  gap: clamp(16px, 1.5vw, 24px);
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+  padding-right: clamp(20px, 3vw, 60px);
+}
+
+.dashboard-left {
+  display: flex;
+  flex-direction: row;
+  gap: 45px;
+  max-width: 1500px;
+  flex: 0 0 auto;
+}
+
+.dashboard-card {
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.16);
+}
+
+.leadtime-card {
+  min-height: clamp(140px, 18vh, 220px);
+  min-height: 140px;
+  width: clamp(240px, 16vw, 300px);
+}
+
+.weather-panel {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+  height: auto;
+  min-height: 450px;
+  padding: 0;
+  margin-left: auto;
+  margin-right: 0;
+  flex: 1;
+}
+
+.weather-panel .scene {
+  max-width: 1050px;
+  width: min(100%, 1050px);
+  height: auto;
+}
+
+.weather-panel .weather-card {
+  width: 100%;
+  height: auto;
+}
+
+@media (max-width: 1200px) {
+  .dashboard-grid {
+    flex-wrap: wrap;
+    gap: clamp(12px, 1vw, 20px);
+    padding-right: clamp(12px, 1.5vw, 20px);
+  }
+
+  .weather-panel {
+    min-height: 62vh;
+    justify-content: center;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 800px) {
+  .dashboard-card,
+  .weather-panel {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .dashboard-grid {
+    padding-right: clamp(12px, 1.5vw, 20px);
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-left {
+    flex-direction: column;
+  }
+  .dashboard-grid {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
