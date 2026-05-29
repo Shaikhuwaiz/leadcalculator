@@ -90,7 +90,8 @@ export default function App() {
       color: "white",
       boxShadow: "none",
       fontSize: "15px",
-      width: "340px",
+      width: "100%",
+      maxWidth: "340px",
     }),
     indicatorSeparator: () => ({ display: "none" }),
     menu: (base) => ({ ...base, backgroundColor: "#1e293b", borderRadius: "12px", overflow: "hidden" }),
@@ -142,7 +143,7 @@ export default function App() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", width: "100%", height: "100%", overflow: "hidden" }}>
-      <div style={{ flex: 1, overflow: "auto", padding: "40px 60px 150px 60px" }}>
+      <div style={{ flex: 1, overflow: "auto", padding: "30px 20px 150px 20px" }}>
         <nav style={{ display: "flex", gap: 8, background: "rgba(30,41,59,0.6)", padding: 6, borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)", position: "fixed", bottom: 30, left: "50%", transform: "translateX(-50%)", zIndex: 9999 }}>
           {[{ id: "home", label: "Home" }, { id: "extras", label: "Extras" }, { id: "holiday", label: "Holiday" }, { id: "notes", label: "Notes" }].map((tab) => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ background: activeTab === tab.id ? "#38bdf8" : "transparent", color: activeTab === tab.id ? "#0f172a" : "#cbd5e1", border: "none", padding: "10px 24px", borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>{tab.label}</button>
@@ -150,18 +151,18 @@ export default function App() {
         </nav>
 
         {activeTab === "home" && (
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 40 }}>
-            <div style={{ position: "relative", zIndex: 10, flex: 1 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 30 }}>
+            <div style={{ position: "relative", zIndex: 10 }}>
               <h1 style={{ marginBottom: 30 }}>Leadtime Dashboard</h1>
 
               <div style={{ display: "flex", alignItems: "flex-start", gap: 20, flexWrap: "wrap" }}>
-                <div style={{ width: 340, display: "flex", flexDirection: "column", gap: 18 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 18, minWidth: "280px" }}>
                   <div style={{ fontSize: 20, color: "#cbd5e1" }}>Date: <strong style={{ color: "white" }}>{todayLabel}</strong></div>
                   <Select options={options} value={options.find((o) => o.value === selected)} onChange={(opt) => setSelected(opt?.value || "")} placeholder={loading ? "Loading..." : "Select Leadtime Type..."} menuPlacement="auto" styles={customSelectStyles} menuPortalTarget={document.body} menuPosition="fixed" isSearchable={false} />
                 </div>
 
                 {selected && (
-                  <div style={{ padding: 25, background: "rgba(56,189,248,0.1)", border: "1px solid rgba(56,189,248,0.3)", borderRadius: 15, minWidth: 320, minHeight: 120 }}>
+                  <div style={{ padding: 25, background: "rgba(56,189,248,0.1)", border: "1px solid rgba(56,189,248,0.3)", borderRadius: 15, minWidth: 280, minHeight: 120 }}>
                     <div style={{ fontSize: 14, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1, fontWeight: 600 }}>{selectedProgram?.code} Leadtime</div>
                     <div style={{ fontSize: 42, fontWeight: "bold", color: selectedDate === "TBD" ? "#94a3b8" : "#38bdf8", marginTop: 5 }}>{selectedDate}</div>
                   </div>
@@ -169,22 +170,24 @@ export default function App() {
               </div>
             </div>
 
-            <WeatherScene />
+            <div style={{ maxWidth: "100%", overflow: "hidden" }}>
+              <WeatherScene />
+            </div>
           </div>
         )}
 
         {activeTab === "holiday" && (
-          <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <div style={{ maxWidth: "100%", margin: "0 auto", display: "flex", flexDirection: "column", alignItems: "center", paddingLeft: "20px", paddingRight: "20px" }}>
             <h2 style={{ fontSize: 28, marginBottom: 10, color: "white" }}>Holidays Calendar</h2>
-            <p style={{ color: "#94a3b8", marginBottom: 30 }}>The following holidays are observed and excluded from business day leadtime calculations.</p>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 320px)", gap: 20, justifyContent: "center", width: "100%" }}>
+            <p style={{ color: "#94a3b8", marginBottom: 30, maxWidth: "800px", textAlign: "center" }}>The following holidays are observed and excluded from business day leadtime calculations.</p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20, justifyContent: "center", width: "100%", maxWidth: "1000px" }}>
               {holidays.map((holiday) => {
                 const dateObj = new Date(holiday.date);
                 const formattedDate = dateObj.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
                 const todayStr = getTodayChicagoYMD();
                 const isCurrentOrFuture = holiday.date >= todayStr;
                 return (
-                  <div key={holiday.date} style={{ background: "rgba(30,41,59,0.5)", border: isCurrentOrFuture ? "1px solid rgba(56,189,248,0.4)" : "1px solid rgba(255,255,255,0.05)", borderRadius: 16, padding: 20 }}>
+                  <div key={holiday.date} style={{ background: "rgba(30,41,59,0.5)", border: isCurrentOrFuture ? "1px solid rgba(56,189,248,0.4)" : "1px solid rgba(255,255,255,0.05)", borderRadius: 16, padding: 20, position: "relative" }}>
                     <div style={{ fontSize: 15, fontWeight: 600, color: "#38bdf8", marginBottom: 6 }}>{holiday.name}</div>
                     {isCurrentOrFuture && <span style={{ position: "absolute", top: 12, right: 12, background: "#38bdf8", color: "#0f172a", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, textTransform: "uppercase" }}>Upcoming</span>}
                     <div style={{ fontSize: 14, color: isCurrentOrFuture ? "#38bdf8" : "#94a3b8", fontWeight: 600, marginBottom: 6 }}>{holiday.date}</div>
@@ -197,10 +200,10 @@ export default function App() {
         )}
 
         {activeTab === "extras" && (
-          <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", flexDirection: "column", gap: 24 }}>
+          <div style={{ maxWidth: "100%", margin: "0 auto", display: "flex", flexDirection: "column", gap: 24, paddingLeft: "20px", paddingRight: "20px" }}>
             <h2 style={{ fontSize: 28, marginBottom: 10, color: "white" }}>Extras</h2>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 18, width: "100%" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 18, width: "100%" }}>
               <div style={{ padding: 18, borderRadius: 12, background: "rgba(2,6,23,0.5)", border: "1px solid rgba(255,255,255,0.04)" }}>
                 <div style={{ fontSize: 14, color: "#94a3b8", marginBottom: 8, fontWeight: 600, textTransform: "uppercase" }}>Order Entry</div>
                 <div style={{ fontSize: 16, color: "white", fontWeight: 700 }}>OE {formatChicagoDate(getTodayChicagoYMD()).slice(0,5)} AWS</div>
@@ -218,16 +221,16 @@ export default function App() {
               </div>
             </div>
 
-            <div style={{ background: "rgba(30,41,59,0.4)", borderRadius: 12, overflow: "hidden", border: "1px solid rgba(56,189,248,0.2)" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", borderBottom: "2px solid rgba(56,189,248,0.3)" }}>
+            <div style={{ background: "rgba(30,41,59,0.4)", borderRadius: 12, overflow: "hidden", border: "1px solid rgba(56,189,248,0.2)", width: "100%" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", borderBottom: "2px solid rgba(56,189,248,0.3)" }}>
                 {['Column 1','Column 2','Column 3'].map((t,i)=> (
                   <div key={i} style={{ padding: 16, background: 'rgba(56,189,248,0.1)', fontWeight:700, color:'#38bdf8', textTransform:'uppercase', fontSize:13, borderRight: i<2 ? '1px solid rgba(56,189,248,0.2)': 'none' }}>{t}</div>
                 ))}
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
                 {parsedColumns.map((col, colIndex) => (
-                  <div key={colIndex} style={{ borderRight: colIndex<2 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+                  <div key={colIndex} style={{ borderRight: colIndex<2 ? '1px solid rgba(255,255,255,0.05)' : 'none', maxHeight: "400px", overflowY: "auto" }}>
                     {col && col.length>0 ? col.map((line, li) => {
                       if (colIndex === 1) {
                         const m = line.match(/^([A-Za-z0-9-]+)\s*(.*)$/);
@@ -250,9 +253,9 @@ export default function App() {
         )}
 
         {activeTab === 'notes' && (
-          <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', gap: 20, alignItems: 'flex-start' }}>
+          <div style={{ maxWidth: "100%", margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 20, paddingLeft: "20px", paddingRight: "20px" }}>
             <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
                 <div>
                   <h2 style={{ fontSize: 28, marginBottom: 6, color: 'white' }}>Scratchpad Notes</h2>
                 </div>
@@ -276,19 +279,18 @@ export default function App() {
     borderRadius: 14,
     padding: 18,
     color: 'white',
-
-  resize: 'none',
-overflowY: 'auto',
-overflowX: 'hidden',
-wordBreak: 'break-word',
-whiteSpace: 'pre-wrap',
-outline: 'none',
-cursor: 'text'
+    resize: 'none',
+    overflowY: 'auto',
+    overflowX: 'hidden',
+    wordBreak: 'break-word',
+    whiteSpace: 'pre-wrap',
+    outline: 'none',
+    cursor: 'text'
   }}
 />
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, flexWrap: 'wrap', gap: 10 }}>
                     <span style={{ fontSize: 13, color: '#64748b' }}>Auto-saved to Browser Storage</span>
-                    <div style={{ display: 'flex', gap: 10 }}>
+                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                       <button onClick={() => { if (confirm('Are you sure you want to clear your notes?')) { setNotes(''); setOpenViewerNote(null); localStorage.removeItem('leadtime_notes'); } }} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171', padding: '8px 16px', borderRadius: 8 }}>Clear Notes</button>
                       <button onClick={() => { const titlePrompt = prompt('Save note as (enter a title):', ''); if (!titlePrompt) return; const key = 'leadtime_notes_named_array'; const existing = JSON.parse(localStorage.getItem(key) || '[]'); const note = { id: Date.now().toString(), title: titlePrompt, content: notes || '', createdAt: Date.now(), updatedAt: Date.now() }; const updated = [note, ...existing]; localStorage.setItem(key, JSON.stringify(updated)); setNotesList(updated); setNotes(''); alert(`Saved note "${titlePrompt}".`); }} style={{ background: 'linear-gradient(90deg,#06b6d4,#3b82f6)', border: 'none', color: 'white', padding: '8px 16px', borderRadius: 8 }}>Save Note</button>
                     </div>
@@ -297,9 +299,9 @@ cursor: 'text'
               )}
             </div>
 
-            <div style={{ width: 320, display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div style={{ color: '#94a3b8', fontSize: 13, textAlign: 'right' }}>Saved Notes</div>
-              <div style={{ background: 'rgba(15,23,42,0.5)', borderRadius: 12, padding: 8, maxHeight: '72vh', overflowY: 'auto', border: '1px solid rgba(255,255,255,0.04)', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, maxWidth: "100%" }}>
+              <div style={{ color: '#94a3b8', fontSize: 13 }}>Saved Notes</div>
+              <div style={{ background: 'rgba(15,23,42,0.5)', borderRadius: 12, padding: 8, maxHeight: '400px', overflowY: 'auto', border: '1px solid rgba(255,255,255,0.04)', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                 <style>{`.savedNotesList::-webkit-scrollbar { display: none; }`}</style>
                 <NotesList items={notesList} storageKey={'leadtime_notes_named_array'} onOpen={(n)=>setOpenViewerNote(n)} onDelete={(id)=>{ const key='leadtime_notes_named_array'; const existing = JSON.parse(localStorage.getItem(key) || '[]'); const updated = existing.filter((x)=>x.id !== id); localStorage.setItem(key, JSON.stringify(updated)); setNotesList(updated); setNotes('');
 setScratchpadVisible(false); if (openViewerNote && openViewerNote.id === id) setOpenViewerNote(null); }} />
@@ -309,8 +311,8 @@ setScratchpadVisible(false); if (openViewerNote && openViewerNote.id === id) set
         )}
 
         {openViewerNote && (
-          <div style={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(2,6,23,0.6)', zIndex: 20000 }} onClick={()=>setOpenViewerNote(null)}>
-            <div onClick={(e)=>e.stopPropagation()} style={{ width: 720, maxHeight: '80vh', overflowY: 'auto', background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: 20 }}>
+          <div style={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(2,6,23,0.6)', zIndex: 20000, padding: "20px" }} onClick={()=>setOpenViewerNote(null)}>
+            <div onClick={(e)=>e.stopPropagation()} style={{ width: '100%', maxWidth: '720px', maxHeight: '80vh', overflowY: 'auto', background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: 20 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
                 <div>
                   <div style={{ fontSize: 18, fontWeight: 800 }}>{openViewerNote.title}</div>

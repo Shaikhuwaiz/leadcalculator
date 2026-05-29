@@ -2,15 +2,16 @@
 
 .scene {
     position: relative;
-    width: 1000px;
+    width: 100%;
+    max-width: 1000px;
     flex-shrink: 0;
 }
 
 /* Landscape card — wide format so full Weather Frog art fits without cropping */
 .weather-card {
     position: relative;
-    width: 1000px;
-    height: 420px;
+    width: 100%;
+    aspect-ratio: 1000 / 420;
     overflow: hidden;
     border-radius: 30px;
     box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
