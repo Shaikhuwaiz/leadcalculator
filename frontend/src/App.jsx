@@ -82,24 +82,47 @@ export default function App() {
   }
 
   const customSelectStyles = {
+    container: (base) => ({
+      ...base,
+      width: "100%",
+    }),
     control: (base) => ({
       ...base,
       backgroundColor: "#1e293b",
       borderColor: "#334155",
       borderRadius: "12px",
+      height: "58px",
       minHeight: "58px",
       color: "white",
       boxShadow: "none",
       fontSize: "15px",
       width: "100%",
-      maxWidth: "340px",
+    }),
+    valueContainer: (base) => ({
+      ...base,
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
+      display: "flex",
+      flexWrap: "nowrap",
+      padding: "2px 8px",
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: "white",
+      fontFamily: "Inter, sans-serif",
+      fontSize: "15px",
+      fontWeight: "500",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
+      maxWidth: "100%",
     }),
     indicatorSeparator: () => ({ display: "none" }),
     menu: (base) => ({ ...base, backgroundColor: "#1e293b", borderRadius: "12px", overflow: "hidden" }),
     menuList: (base) => ({ ...base, paddingTop: 0, paddingBottom: 0, maxHeight: "280px", overflowY: "auto" }),
     menuPortal: (base) => ({ ...base, zIndex: 9999 }),
     option: (base, state) => ({ ...base, backgroundColor: state.isFocused ? "#38bdf8" : "#1e293b", color: "white", padding: "14px", fontFamily: "Inter, sans-serif", fontSize: "15px", fontWeight: "500" }),
-    singleValue: (base) => ({ ...base, color: "white", fontFamily: "Inter, sans-serif", fontSize: "15px", fontWeight: "500" }),
     placeholder: (base) => ({ ...base, color: "#94a3b8", fontFamily: "Inter, sans-serif", fontSize: "15px", fontWeight: "600" }),
     input: (base) => ({ ...base, color: "white" }),
   };
@@ -154,7 +177,7 @@ export default function App() {
         {activeTab === "home" && (
           <div className="dashboard-grid" style={{ position: "relative", zIndex: 10 }}>
             <div className="dashboard-left">
-              <div className="dashboard-card" style={{ display: "grid", gap: 20 }}>
+              <div className="dashboard-card dropdown-card">
                 <div style={{ fontSize: 20, color: "#cbd5e1" }}>
                   Date: <strong style={{ color: "white" }}>{todayLabel}</strong>
                 </div>
@@ -175,7 +198,7 @@ export default function App() {
                 <div style={{ fontSize: 14, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1, fontWeight: 600 }}>
                   Leadtime Result
                 </div>
-                <div style={{ fontSize: 42, fontWeight: "800", color: selectedDate === "TBD" ? "#94a3b8" : "#38bdf8", marginTop: 10, lineHeight: 1 }}>
+                <div className="leadtime-date" style={{ color: selectedDate === "TBD" ? "#94a3b8" : "#38bdf8" }}>
                   {selectedDate}
                 </div>
               </div>

@@ -340,31 +340,25 @@ export default function WeatherScene() {
                             pointerEvents: "none",
                         }}
                     >
-                        <div style={{
-                            position: "absolute",
-                            top: "20px",
-                            left: "36px",
-                            color: "white",
-                            textShadow: "0px 2px 12px rgba(0,0,0,0.5)",
-                        }}>
+                        <div className="weather-info-container">
                             {/* Location & Time */}
-                            <div style={{ fontSize: "13px", fontWeight: "500", opacity: 0.8, display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px" }}>
-                                <span className="weather-icon" style={{ fontSize: "14px" }}>location_on</span>
+                            <div className="weather-location">
+                                <span className="weather-icon">location_on</span>
                                 <span>Bourbon, MO &bull; {currentTime.toLocaleString("en-US", { timeZone: "America/Chicago", weekday: "short", hour: "numeric", minute: "2-digit", timeZoneName: "short" })}</span>
                             </div>
 
                             {/* Big temperature */}
-                            <div style={{ fontSize: "90px", fontWeight: "300", lineHeight: "1", letterSpacing: "-2px" }}>
+                            <div className="weather-temp">
                                 {Math.round(activeTemp)}&deg;
                             </div>
 
                             {/* Feels like */}
-                            <div style={{ fontSize: "16px", fontWeight: "400", marginTop: "6px", opacity: 0.88 }}>
+                            <div className="weather-feels-like">
                                 Feels like {Math.round(activeApparentTemp)}&deg;
                             </div>
 
                             {/* High / Low + Alert */}
-                            <div style={{ fontSize: "22px", marginTop: "8px", fontWeight: "500", opacity: 0.80, display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                            <div className="weather-high-low">
                                 <span>Day: &uarr; {Math.round(activeHigh)}&deg; &nbsp; Night: &darr; {Math.round(activeLow)}&deg;</span>
                                 {weatherData.alerts && weatherData.alerts.length > 0 && (
                                     <span className="alert-pill">

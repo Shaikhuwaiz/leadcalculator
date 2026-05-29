@@ -4,7 +4,6 @@
     position: relative;
     width: 100%;
     max-width: 1000px;
-    flex-shrink: 0;
 }
 
 /* Landscape card — wide format so full Weather Frog art fits without cropping */
@@ -335,4 +334,124 @@
 
 .fg-layer {
     z-index: 4;
+}
+
+.weather-info-container {
+    position: absolute;
+    top: 20px;
+    left: 36px;
+    color: white;
+    text-shadow: 0px 2px 12px rgba(0,0,0,0.5);
+}
+
+.weather-location {
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0.8;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+
+.weather-location .weather-icon {
+    font-size: 14px;
+}
+
+.weather-temp {
+    font-size: 90px;
+    font-weight: 300;
+    line-height: 1;
+    letter-spacing: -2px;
+}
+
+.weather-feels-like {
+    font-size: 16px;
+    font-weight: 400;
+    margin-top: 6px;
+    opacity: 0.88;
+}
+
+.weather-high-low {
+    font-size: 22px;
+    margin-top: 8px;
+    font-weight: 500;
+    opacity: 0.80;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Responsiveness for Weather Scene elements on smaller screens */
+@media (max-width: 1600px) {
+    .weather-info-container {
+        top: 18px;
+        left: 24px;
+    }
+    .weather-temp {
+        font-size: 72px;
+    }
+    .weather-feels-like {
+        font-size: 14px;
+        margin-top: 4px;
+    }
+    .weather-high-low {
+        font-size: 18px;
+        margin-top: 6px;
+    }
+    .skyIconContainer {
+        top: 18px;
+        right: 24px;
+    }
+    .skyIconImg {
+        width: 80px;
+        height: 80px;
+    }
+    .skyIconLabel {
+        font-size: 15px;
+    }
+    .alert-pill {
+        font-size: 11px;
+        padding: 3px 10px;
+    }
+    .alert-icon {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 1366px) {
+    .weather-info-container {
+        top: 16px;
+        left: 18px;
+    }
+    .weather-temp {
+        font-size: 56px;
+    }
+    .weather-feels-like {
+        font-size: 12px;
+        margin-top: 2px;
+    }
+    .weather-high-low {
+        font-size: 15px;
+        margin-top: 4px;
+    }
+    .skyIconContainer {
+        top: 16px;
+        right: 18px;
+    }
+    .skyIconImg {
+        width: 64px;
+        height: 64px;
+    }
+    .skyIconLabel {
+        font-size: 13px;
+    }
+    .alert-pill {
+        font-size: 10px;
+        padding: 2px 8px;
+    }
+    .alert-icon {
+        font-size: 12px;
+    }
 }

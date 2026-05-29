@@ -1,8 +1,10 @@
-/* Responsive base and reset */
 :root {
   color-scheme: dark;
   /* Fluid base font size */
   font-size: clamp(14px, 0.9vw + 0.6rem, 18px);
+  --dropdown-card-width: 380px;
+  --leadtime-card-width: 320px;
+  --card-height: 160px;
 }
 
 *, *::before, *::after {
@@ -52,6 +54,9 @@ html, body, #root {
 @media (max-width: 1400px) {
   :root {
     font-size: clamp(13px, 1.0vw + 0.6rem, 17px);
+    --dropdown-card-width: 340px;
+    --leadtime-card-width: 280px;
+    --card-height: 150px;
   }
 }
 
@@ -89,19 +94,19 @@ img, picture, svg, video {
 
 .dashboard-grid {
   display: flex;
-  gap: clamp(16px, 1.5vw, 24px);
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 20px;
   align-items: flex-start;
-  justify-content: space-between;
+  justify-content: flex-start;
   width: 100%;
-  padding-right: clamp(20px, 3vw, 60px);
 }
 
 .dashboard-left {
   display: flex;
   flex-direction: row;
-  gap: 45px;
-  max-width: 1500px;
-  flex: 0 0 auto;
+  gap: 20px;
+  flex-shrink: 0;
 }
 
 .dashboard-card {
@@ -110,30 +115,64 @@ img, picture, svg, video {
   border-radius: 24px;
   padding: 24px;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.16);
+  box-sizing: border-box;
+}
+
+@media (max-width: 1400px) {
+  .dashboard-card {
+    padding: 20px;
+  }
+}
+
+.dropdown-card {
+  width: var(--dropdown-card-width);
+  height: var(--card-height);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
 }
 
 .leadtime-card {
-  min-height: clamp(140px, 18vh, 220px);
-  min-height: 140px;
-  width: clamp(240px, 16vw, 300px);
+  width: var(--leadtime-card-width);
+  height: var(--card-height);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+}
+
+.leadtime-date {
+  font-size: 42px;
+  font-weight: 800;
+  margin-top: 10px;
+  line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 1400px) {
+  .leadtime-date {
+    font-size: 32px;
+  }
 }
 
 .weather-panel {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   align-items: center;
-  width: 100%;
-  height: auto;
-  min-height: 450px;
-  padding: 0;
-  margin-left: auto;
-  margin-right: 0;
   flex: 1;
+  min-width: 0;
+  max-width: 1000px;
+  height: auto;
 }
 
 .weather-panel .scene {
-  max-width: 1050px;
-  width: min(100%, 1050px);
+  width: 100%;
+  max-width: 1000px;
   height: auto;
 }
 
@@ -142,39 +181,35 @@ img, picture, svg, video {
   height: auto;
 }
 
-@media (max-width: 1200px) {
-  .dashboard-grid {
-    flex-wrap: wrap;
-    gap: clamp(12px, 1vw, 20px);
-    padding-right: clamp(12px, 1.5vw, 20px);
-  }
-
-  .weather-panel {
-    min-height: 62vh;
-    justify-content: center;
-    margin-left: 0;
-    margin-right: 0;
-  }
-}
-
+/* Responsive adjustment for general dashboard cards */
 @media (max-width: 800px) {
   .dashboard-card,
   .weather-panel {
     padding: 18px;
     border-radius: 20px;
   }
-
-  .dashboard-grid {
-    padding-right: clamp(12px, 1.5vw, 20px);
-  }
 }
 
 @media (max-width: 768px) {
-  .dashboard-left {
-    flex-direction: column;
-  }
   .dashboard-grid {
     flex-direction: column;
     align-items: stretch;
+    flex-wrap: wrap;
+  }
+  .dashboard-left {
+    flex-direction: column;
+    width: 100%;
+    gap: 20px;
+  }
+  .dropdown-card,
+  .leadtime-card {
+    width: 100%;
+    height: auto;
+    min-height: 140px;
+  }
+  .weather-panel {
+    width: 100%;
+    max-width: 100%;
+    justify-content: center;
   }
 }
