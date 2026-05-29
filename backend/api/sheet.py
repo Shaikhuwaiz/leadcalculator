@@ -1,3 +1,5 @@
+import os
+import json
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
@@ -6,14 +8,10 @@ scope = [
     "https://www.googleapis.com/auth/drive"
 ]
 
-import os
-
 def get_sheet_data():
-    api_dir = os.path.dirname(os.path.abspath(__file__))
-    creds_path = os.path.join(os.path.dirname(api_dir), "credentials.json")
 
-    creds = ServiceAccountCredentials.from_json_keyfile_name(
-        creds_path,
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(
+        json.loads(os.environ["GOOGLE_CREDENTIALS"]),
         scope
     )
 
@@ -30,20 +28,16 @@ def get_sheet_data():
     programs = []
 
     for row in rows[1:]:
-
         if len(row) < 9:
             continue
 
-        name = row[0].strip()
-        business_days = row[8].strip()
-
-        if not name or not business_days:
+        if not row[0].strip() or not row[8].strip():
             continue
 
         programs.append({
-    "code": row[1].strip(),
-    "name": row[0].strip(),
-    "business_days": int(row[8])
-})
+            "code": row[1].strip(),
+            "name": row[0].strip(),
+            "business_days": int(row[8]),
+        })
 
     return programs
