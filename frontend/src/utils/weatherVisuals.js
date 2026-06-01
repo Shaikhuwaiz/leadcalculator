@@ -10,7 +10,7 @@ import {
 
 export { WEATHER_PREVIEW_SAMPLES, WEATHER_SCENES, getSceneImageUrl, findSceneForWeather };
 
-const ICON_FLAT = "/weatherfrog/icons/weather/flat";
+const ICON_FLAT = "/weatherfrog/icons/set-2";
 
 export function previewTimeForHour(hour) {
   const h = String(hour).padStart(2, "0");
@@ -29,44 +29,44 @@ function localIconFile(name) {
 export function getWeatherIconUrl(code, isDay, scene = null) {
   if (scene?.icon) {
     let iconName = scene.icon;
-    if (iconName === "squalls.svg") iconName = "blizzard.svg";
-    return localIconFile(iconName);
+    if (iconName === "squalls.svg") iconName = "blizzard.png";
+    return localIconFile(iconName.replace('.svg', '.png'));
   }
 
-  if (code === 0) return localIconFile(isDay ? "clear_day.svg" : "clear_night.svg");
-  if (code === 1) return localIconFile(isDay ? "mostly_clear_day.svg" : "mostly_clear_night.svg");
-  if (code === 2) return localIconFile(isDay ? "partly_cloudy_day.svg" : "partly_cloudy_night.svg");
-  if (code === 3) return localIconFile(isDay ? "cloudy.svg" : "mostly_cloudy_night.svg");
-  if (code === 45 || code === 48) return localIconFile("haze_fog_dust_smoke.svg");
-  if (code >= 51 && code <= 55) return localIconFile("drizzle.svg");
+  if (code === 0) return localIconFile(isDay ? "sunny.png" : "clear_night.png");
+  if (code === 1) return localIconFile(isDay ? "mostly_sunny.png" : "mostly_clear_night.png");
+  if (code === 2) return localIconFile(isDay ? "partly_cloudy.png" : "partly_cloudy_night.png");
+  if (code === 3) return localIconFile(isDay ? "cloudy.png" : "mostly_cloudy_night.png");
+  if (code === 45 || code === 48) return localIconFile("haze_fog_dust_smoke.png");
+  if (code >= 51 && code <= 55) return localIconFile("drizzle.png");
   if (code === 56 || code === 57 || code === 66 || code === 67) {
-    return localIconFile("mixed_rain_hail_rain_sleet.svg");
+    return localIconFile("sleet_hail.png");
   }
-  if (code === 68 || code === 69) return localIconFile("sleet_hail.svg");
-  if (code === 70) return localIconFile("icy.svg");
+  if (code === 68 || code === 69) return localIconFile("sleet_hail.png");
+  if (code === 70) return localIconFile("sleet_hail.png");
   if (code === 61 || code === 63) {
-    return localIconFile("showers_rain.svg");
+    return localIconFile("showers_rain.png");
   }
   if (code === 80 || code === 81) {
-    return localIconFile("showers_rain.svg");
+    return localIconFile("showers_rain.png");
   }
-  if (code === 65 || code === 82) return localIconFile("heavy_rain.svg");
-  if (code === 71) return localIconFile("flurries.svg");
-  if (code === 73) return localIconFile("showers_snow.svg");
+  if (code === 65 || code === 82) return localIconFile("heavy_rain.png");
+  if (code === 71) return localIconFile("flurries.png");
+  if (code === 73) return localIconFile("snow_showers_snow.png");
   if (code === 85) {
-    return localIconFile("showers_snow.svg");
+    return localIconFile("snow_showers_snow.png");
   }
-  if (code === 74) return localIconFile("blowing_snow.svg");
-  if (code === 77) return localIconFile("blizzard.svg");
-  if (code === 75 || code === 86) return localIconFile("heavy_snow.svg");
+  if (code === 74) return localIconFile("blowing_snow.png");
+  if (code === 77) return localIconFile("blizzard.png");
+  if (code === 75 || code === 86) return localIconFile("heavy_snow.png");
   if (code === 95) {
-    return localIconFile(isDay ? "isolated_scattered_thunderstorms_day.svg" : "isolated_scattered_thunderstorms_night.svg");
+    return localIconFile(isDay ? "isolated_scattered_tstorms_day.png" : "isolated_scattered_tstorms_night.png");
   }
-  if (code === 96 || code === 97) return localIconFile("strong_thunderstorms.svg");
-  if (code === 98) return localIconFile("tropical_storm_hurricane.svg");
-  if (code === 99) return localIconFile("tornado.svg");
+  if (code === 96 || code === 97) return localIconFile("strong_tstorms.png");
+  if (code === 98) return localIconFile("strong_tstorms.png");
+  if (code === 99) return localIconFile("tornado.png");
 
-  return localIconFile(isDay ? "clear_day.svg" : "clear_night.svg");
+  return localIconFile(isDay ? "sunny.png" : "clear_night.png");
 }
 
 /** @deprecated Use getWeatherIconUrl */
