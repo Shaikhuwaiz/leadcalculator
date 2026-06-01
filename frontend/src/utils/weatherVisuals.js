@@ -36,7 +36,7 @@ export function getWeatherIconUrl(code, isDay, scene = null) {
   if (code === 0) return localIconFile(isDay ? "clear_day.svg" : "clear_night.svg");
   if (code === 1) return localIconFile(isDay ? "mostly_clear_day.svg" : "mostly_clear_night.svg");
   if (code === 2) return localIconFile(isDay ? "partly_cloudy_day.svg" : "partly_cloudy_night.svg");
-  if (code === 3) return localIconFile("cloudy.svg");
+  if (code === 3) return localIconFile(isDay ? "cloudy.svg" : "mostly_cloudy_night.svg");
   if (code === 45 || code === 48) return localIconFile("haze_fog_dust_smoke.svg");
   if (code >= 51 && code <= 55) return localIconFile("drizzle.svg");
   if (code === 56 || code === 57 || code === 66 || code === 67) {
