@@ -2,6 +2,7 @@
  * Canonical Weather Frog scenes (landscape).
  * Each scene has a tuned sky gradient to match its illustration.
  */
+import { getChicagoHourFromIso } from "./chicagoDate";
 
 const G = {
   sunnyDay: "linear-gradient(to bottom, #1D8FE1 0%, #6FC4F5 50%, #B8E4FA 100%)",
@@ -249,6 +250,16 @@ export function getWeatherImageFilename(code, isDay) {
 
 export function getSceneSkyGradient(scene, timeString, fallbackGradient) {
   if (!scene) return fallbackGradient;
+
+  const hour = getChicagoHourFromIso(timeString);
+  const isEvening = hour >= 17 && hour < 20;
+  const code = scene.code;
+  const isDay = scene.isDay;
+
+  if (isEvening && isDay && code <= 3) {
+    return fallbackGradient;
+  }
+
   if (scene.gradient) return scene.gradient;
   return fallbackGradient;
 }

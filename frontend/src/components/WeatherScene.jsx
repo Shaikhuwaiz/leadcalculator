@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useState, useRef } from "react";
 import "./WeatherScene.css";
 import { getChicagoHour } from "../utils/chicagoDate";

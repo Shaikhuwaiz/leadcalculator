@@ -89,6 +89,11 @@ export function getSkyGradient(code, isDay, timeString) {
     return "linear-gradient(to bottom, #0F0C20 0%, #1E1233 60%, #3B1B47 100%)";
   }
 
+  // Evening override for sunny/cloudy/clear (codes 0, 1, 2, 3)
+  if (hour >= 17 && hour < 20 && code <= 3) {
+    return "linear-gradient(to bottom, #5A9FD4 0%, #F0B88A 55%, #F8D4B0 100%)";
+  }
+
   if (code >= 96) {
     return "linear-gradient(to bottom, #2A2240 0%, #483858 50%, #685878 100%)";
   }

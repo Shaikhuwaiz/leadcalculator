@@ -34,8 +34,8 @@ function NotesList({ items, storageKey, onOpen, onDelete }) {
 const DOMESTIC_PROGRAMS = [
   { code: "Domestic", business_days: 8 },
   { code: "USA", business_days: 8 },
-  { code: "Apparel DTG", business_days: 20 },
-  { code: "PMDTG (Vulcan)", business_days: 20 },
+  { code: "Apparel DTG", business_days: 30 },
+  { code: "PMDTG (Vulcan)", business_days: 30 },
   { code: "PMGDTG (Tape)", business_days: 8 },
   { code: "Domestic Blank", business_days: 3 },
   { code: "USA Blank", business_days: 8 },
