@@ -129,10 +129,27 @@ export default function App() {
 
   // Normalize holidays for display: accept either array of strings (YYYY-MM-DD)
   // or objects { date, name } so the Holiday tab doesn't show "Invalid Date".
+  const holidayNameMap = {
+    '2026-01-01': "New Year's Day",
+    '2026-01-02': "New Year Holiday",
+    '2026-05-25': 'Memorial Day',
+    '2026-07-03': 'Independence Day',
+    '2026-07-06': 'Independence Day',
+    '2026-09-07': 'Labor Day',
+    '2026-11-26': 'Thanksgiving Day',
+    '2026-11-27': 'Thanksgiving Day',
+    '2026-11-28': 'Thanksgiving Day',
+    '2026-12-24': 'Christmas Day',
+    '2026-12-25': 'Christmas Day',
+    '2026-12-26': 'Christmas Day',
+    '2026-12-31': "New Year's Eve",
+  };
+
   const holidayList = (holidays || []).map((h) => {
-    if (typeof h === "string") return { date: h, name: "Holiday" };
-    if (h && typeof h === "object" && h.date) return h;
-    return { date: String(h), name: "Holiday" };
+    if (typeof h === "string") return { date: h, name: holidayNameMap[h] || "Holiday" };
+    if (h && typeof h === "object" && h.date) return { date: h.date, name: h.name || holidayNameMap[h.date] || "Holiday" };
+    const s = String(h);
+    return { date: s, name: holidayNameMap[s] || "Holiday" };
   });
 
   const [notesList, setNotesList] = useState(() => JSON.parse(localStorage.getItem("leadtime_notes_named_array") || "[]"));
