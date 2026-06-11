@@ -4,11 +4,11 @@ export const holidays = [
     name: "Memorial Day"
   },
   {
-    date: "07-03-2025",
+    date: "07-04-2025",
     name: "Independence Day"
   },
   {
-    date: "07-04-2025",
+    date: "07-06-2025",
     name: "Independence Day"
   },
   {
