@@ -127,6 +127,14 @@ export default function App() {
     input: (base) => ({ ...base, color: "white" }),
   };
 
+  // Normalize holidays for display: accept either array of strings (YYYY-MM-DD)
+  // or objects { date, name } so the Holiday tab doesn't show "Invalid Date".
+  const holidayList = (holidays || []).map((h) => {
+    if (typeof h === "string") return { date: h, name: "Holiday" };
+    if (h && typeof h === "object" && h.date) return h;
+    return { date: String(h), name: "Holiday" };
+  });
+
   const [notesList, setNotesList] = useState(() => JSON.parse(localStorage.getItem("leadtime_notes_named_array") || "[]"));
   const [openViewerNote, setOpenViewerNote] = useState(null);
   const [scratchpadVisible, setScratchpadVisible] = useState(true);
@@ -215,7 +223,7 @@ export default function App() {
             <h2 style={{ fontSize: 28, marginBottom: 10, color: "white" }}>Holidays Calendar</h2>
             <p style={{ color: "#94a3b8", marginBottom: 30, maxWidth: "800px", textAlign: "center" }}>The following holidays are observed and excluded from business day leadtime calculations.</p>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20, justifyContent: "center", width: "100%", maxWidth: "1000px" }}>
-              {holidays.map((holiday) => {
+              {holidayList.map((holiday) => {
                 const dateObj = new Date(holiday.date);
                 const formattedDate = dateObj.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
                 const todayStr = getTodayChicagoYMD();
