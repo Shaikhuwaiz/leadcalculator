@@ -265,7 +265,7 @@ export default function App() {
                 />
               </div>
 
-              <div className="dashboard-card leadtime-card">
+              <div className="dashboard-card policy-result-card">
                 <div style={{ fontSize: 14, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1, fontWeight: 600 }}>
                   Backorder Policy
                 </div>

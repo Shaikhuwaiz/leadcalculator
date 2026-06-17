@@ -4,6 +4,7 @@
   font-size: clamp(14px, 0.9vw + 0.6rem, 18px);
   --dropdown-card-width: 380px;
   --leadtime-card-width: 320px;
+  --policy-card-width: 380px;
   --card-height: 160px;
 }
 
@@ -56,6 +57,7 @@ html, body, #root {
     font-size: clamp(13px, 1.0vw + 0.6rem, 17px);
     --dropdown-card-width: 340px;
     --leadtime-card-width: 280px;
+    --policy-card-width: 340px;
     --card-height: 150px;
   }
 }
@@ -144,6 +146,16 @@ img, picture, svg, video {
   gap: 12px;
 }
 
+.policy-result-card {
+  width: var(--policy-card-width);
+  height: var(--card-height);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+}
+
 .leadtime-date {
   font-size: 42px;
   font-weight: 800;
@@ -155,7 +167,7 @@ img, picture, svg, video {
 }
 
 .policy-result-text {
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 800;
   margin-top: 10px;
   line-height: 1.2;
@@ -169,7 +181,7 @@ img, picture, svg, video {
     font-size: 32px;
   }
   .policy-result-text {
-    font-size: 24px;
+    font-size: 22px;
   }
 }
 
@@ -215,7 +227,8 @@ img, picture, svg, video {
     gap: 20px;
   }
   .dropdown-card,
-  .leadtime-card {
+  .leadtime-card,
+  .policy-result-card {
     width: 100%;
     height: auto;
     min-height: 140px;
