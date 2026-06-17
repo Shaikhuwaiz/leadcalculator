@@ -6,6 +6,7 @@ import { formatChicagoDate } from "./utils/chicagoDate";
 import { holidays } from "./data/holidays";
 import Select from "react-select";
 import columnsRaw from "./utils/columns.js";
+import policyCalculator from "./utils/policycalculator";
 
 function NotesList({ items, storageKey, onOpen, onDelete }) {
   items = items || JSON.parse(localStorage.getItem(storageKey) || "[]");
@@ -51,6 +52,9 @@ export default function App() {
   const [selected, setSelected] = useState("");
   const [activeTab, setActiveTab] = useState("home");
   const [notes, setNotes] = useState(() => localStorage.getItem("leadtime_notes") || "");
+  const [selectedPolicyType, setSelectedPolicyType] = useState("DOMESTIC");
+
+  const policyOptions = policyCalculator.map((item) => ({ value: item.type, label: item.type }));
   // extras_texts removed (unused state)
 
   useEffect(() => {
@@ -194,7 +198,13 @@ export default function App() {
     <div style={{ display: "flex", flexDirection: "column", width: "100%", height: "100%", overflow: "hidden" }}>
       <div style={{ flex: 1, overflow: "auto", padding: "30px 20px 150px 20px" }}>
         <nav style={{ display: "flex", gap: 8, background: "rgba(30,41,59,0.6)", padding: 6, borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)", position: "fixed", bottom: 30, left: "50%", transform: "translateX(-50%)", zIndex: 9999 }}>
-          {[{ id: "home", label: "Home" }, { id: "extras", label: "Extras" }, { id: "holiday", label: "Holiday" }, { id: "notes", label: "Notes" }].map((tab) => (
+          {[
+            { id: "home", label: "Home" },
+            { id: "policy_calculator", label: "Policy Calculator" },
+            { id: "extras", label: "Extras" },
+            { id: "holiday", label: "Holiday" },
+            { id: "notes", label: "Notes" }
+          ].map((tab) => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ background: activeTab === tab.id ? "#38bdf8" : "transparent", color: activeTab === tab.id ? "#0f172a" : "#cbd5e1", border: "none", padding: "10px 24px", borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>{tab.label}</button>
           ))}
         </nav>
@@ -231,6 +241,38 @@ export default function App() {
 
             <div className="weather-panel">
               <WeatherScene />
+            </div>
+          </div>
+        )}
+
+        {activeTab === "policy_calculator" && (
+          <div className="dashboard-grid" style={{ position: "relative", zIndex: 10 }}>
+            <div className="dashboard-left">
+              <div className="dashboard-card dropdown-card">
+                <div style={{ fontSize: 20, color: "#cbd5e1", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  Type: <strong style={{ color: "white" }}>{selectedPolicyType}</strong>
+                </div>
+                <Select
+                  options={policyOptions}
+                  value={policyOptions.find((o) => o.value === selectedPolicyType)}
+                  onChange={(opt) => setSelectedPolicyType(opt?.value || "DOMESTIC")}
+                  placeholder="Select Type..."
+                  menuPlacement="auto"
+                  styles={customSelectStyles}
+                  menuPortalTarget={document.body}
+                  menuPosition="fixed"
+                  isSearchable={false}
+                />
+              </div>
+
+              <div className="dashboard-card leadtime-card">
+                <div style={{ fontSize: 14, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1, fontWeight: 600 }}>
+                  Backorder Policy
+                </div>
+                <div className="policy-result-text">
+                  {policyCalculator.find((item) => item.type === selectedPolicyType)?.policy || "N/A"}
+                </div>
+              </div>
             </div>
           </div>
         )}
