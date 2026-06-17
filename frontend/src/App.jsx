@@ -7,6 +7,7 @@ import { holidays } from "./data/holidays";
 import Select from "react-select";
 import columnsRaw from "./utils/columns.js";
 import policyCalculator from "./utils/policycalculator";
+import updates from "./utils/update";
 
 function NotesList({ items, storageKey, onOpen, onDelete }) {
   items = items || JSON.parse(localStorage.getItem(storageKey) || "[]");
@@ -200,7 +201,8 @@ export default function App() {
         <nav style={{ display: "flex", gap: 8, background: "rgba(30,41,59,0.6)", padding: 6, borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)", position: "fixed", bottom: 30, left: "50%", transform: "translateX(-50%)", zIndex: 9999 }}>
           {[
             { id: "home", label: "Home" },
-            { id: "policy_calculator", label: "Policy Calculator" },
+            { id: "policy_calculator", label: "Policy" },
+            { id: "updates", label: "Updates" },
             { id: "extras", label: "Extras" },
             { id: "holiday", label: "Holiday" },
             { id: "notes", label: "Notes" }
@@ -272,6 +274,39 @@ export default function App() {
                 <div className="policy-result-text">
                   {policyCalculator.find((item) => item.type === selectedPolicyType)?.policy || "N/A"}
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "updates" && (
+          <div style={{ maxWidth: "1000px", margin: "0 auto", display: "flex", flexDirection: "column", gap: 20, paddingLeft: "20px", paddingRight: "20px" }}>
+            <h2 style={{ fontSize: 28, marginBottom: 10, color: "white" }}>Updates Log</h2>
+            <p style={{ color: "#94a3b8", marginBottom: 10 }}>The following are recent announcements and policy updates.</p>
+            
+            <div style={{ background: "rgba(30,41,59,0.4)", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(56,189,248,0.2)", width: "100%", boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)" }}>
+              {/* Header row */}
+              <div style={{ display: "grid", gridTemplateColumns: "180px 1fr", borderBottom: "2px solid rgba(56,189,248,0.3)" }}>
+                <div style={{ padding: 16, background: 'rgba(56,189,248,0.1)', fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase', fontSize: 13, borderRight: '1px solid rgba(56,189,248,0.2)' }}>MM-DD-YYYY</div>
+                <div style={{ padding: 16, background: 'rgba(56,189,248,0.1)', fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase', fontSize: 13 }}>Update</div>
+              </div>
+
+              {/* Rows */}
+              <div>
+                {updates && updates.length > 0 ? (
+                  updates.map((item, idx) => (
+                    <div key={idx} style={{ display: "grid", gridTemplateColumns: "180px 1fr", borderBottom: idx < updates.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+                      <div style={{ padding: 16, color: '#38bdf8', fontWeight: 700, borderRight: '1px solid rgba(255,255,255,0.05)', fontFamily: "monospace", fontSize: 14 }}>
+                        {item.date}
+                      </div>
+                      <div style={{ padding: 16, color: '#e2e8f0', lineHeight: 1.6, fontSize: 14, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                        {item.content}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div style={{ padding: 20, textAlign: "center", color: "#64748b" }}>No updates available</div>
+                )}
               </div>
             </div>
           </div>
