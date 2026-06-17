@@ -287,7 +287,7 @@ export default function App() {
             <div style={{ background: "rgba(30,41,59,0.4)", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(56,189,248,0.2)", width: "100%", boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)" }}>
               {/* Header row */}
               <div style={{ display: "grid", gridTemplateColumns: "180px 1fr", borderBottom: "2px solid rgba(56,189,248,0.3)" }}>
-                <div style={{ padding: 16, background: 'rgba(56,189,248,0.1)', fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase', fontSize: 13, borderRight: '1px solid rgba(56,189,248,0.2)' }}>MM-DD-YYYY</div>
+                <div style={{ padding: 16, background: 'rgba(56,189,248,0.1)', fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase', fontSize: 13, borderRight: '1px solid rgba(56,189,248,0.2)' }}>Date</div>
                 <div style={{ padding: 16, background: 'rgba(56,189,248,0.1)', fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase', fontSize: 13 }}>Update</div>
               </div>
 
