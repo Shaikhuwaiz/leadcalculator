@@ -1,6 +1,6 @@
 const policyCalculator = [
-  { type: "DOMESTIC", policy: "SHIP AND BACKORDER" },
-  { type: "USA", policy: "SHIP AND BACKORDER" },
+  { type: "DOMESTIC", policy: "SHIP COMPLETE" },
+  { type: "USA", policy: "SHIP COMPLETE" },
   { type: "APPAREL", policy: "SHIP COMPLETE" },
   { type: "TOURNAMENT", policy: "SHIP COMPLETE" },
   { type: "SUB-Tournament", policy: "SHIP COMPLETE" },

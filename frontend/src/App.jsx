@@ -7,53 +7,95 @@ import { holidays } from "./data/holidays";
 import Select from "react-select";
 import columnsRaw from "./utils/columns.js";
 import policyCalculator from "./utils/policycalculator";
-import updates from "./utils/update";
+import seedUpdates from "./utils/update";
 
-function NotesList({ items, storageKey, onOpen, onDelete }) {
-  items = items || JSON.parse(localStorage.getItem(storageKey) || "[]");
-  if (!items || items.length === 0) return <div style={{ color: "#64748b", padding: 12, fontSize: 13 }}>No saved notes</div>;
+const EDITOR_PIN = "7860";
+const BLOCKED_UPDATE_CONTENTS = new Set(["dsds", "sdsdsdsdsd"]);
 
-  const accents = ["#0ea5e9", "#38bdf8", "#60a5fa", "#22c55e", "#f97316", "#a855f7", "#f472b6", "#eab308"];
-  return items.map((note, index) => {
-    const accent = accents[index % accents.length];
-    return (
-      <div key={note.id} style={{ background: "rgba(2,6,23,0.25)", borderRadius: 12, padding: 12, marginBottom: 10, border: `1px solid ${accent}33`, boxShadow: "0 8px 18px rgba(0,0,0,0.25)", display: "flex", gap: 10 }}>
-        <div style={{ width: 4, background: accent, borderRadius: 999 }} />
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: accent }}>{note.title || "Untitled"}</div>
-          <div style={{ fontSize: 12, color: "#cbd5e1", marginTop: 6, minHeight: 38, wordBreak: "break-word", overflow: "hidden" }}>{note.content ? (note.content.length > 140 ? note.content.slice(0, 140) + "..." : note.content) : <em>No content</em>}</div>
-          <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 10 }}>{new Date(note.createdAt).toLocaleString()}</div>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6, marginLeft: 8 }}>
-          <button onClick={() => onOpen(note)} style={{ background: accent + "22", border: "1px solid " + accent, color: accent, cursor: "pointer", fontWeight: 700, borderRadius: 8, padding: "6px 10px" }}>Open</button>
-          <button onClick={() => { if (confirm(`Delete note "${note.title || 'Untitled'}"?`)) onDelete(note.id); }} style={{ background: "transparent", border: "none", color: "#f87171", cursor: "pointer", fontWeight: 700 }}>Delete</button>
-        </div>
-      </div>
-    );
+const sanitizeUpdates = (value) => {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item) => {
+    if (!item || typeof item !== "object") return false;
+    const content = String(item.content || "").trim();
+    const normalizedContent = content.toLowerCase();
+    const dateValue = String(item.date || "").trim();
+    if (!content) return false;
+    if (BLOCKED_UPDATE_CONTENTS.has(normalizedContent)) return false;
+    if (dateValue === "8/6/2026, 3:13 PM") return false;
+    return true;
   });
-}
+};
+
+const mergeUpdates = (storedValue) => {
+  const seedEntries = sanitizeUpdates(seedUpdates || []);
+  const storedEntries = sanitizeUpdates(storedValue);
+  const merged = [...storedEntries, ...seedEntries];
+  const seen = new Set();
+  const deduped = [];
+
+  for (const item of merged) {
+    const key = `${String(item.date || "").trim()}::${String(item.content || "").trim()}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    deduped.push(item);
+  }
+
+  return deduped.reverse();
+};
 
 const DOMESTIC_PROGRAMS = [
   { code: "Domestic", business_days: 8 },
   { code: "USA", business_days: 14 },
+  { code: "STAFF", business_days: 15 },
   { code: "Apparel DTG", business_days: 30 },
-  { code: "PMDTG (Vulcan)", business_days: 30 },
-  { code: "PMGDTG (Tape)", business_days: 8 },
+  { code: "PMBELT (Vulcan)", business_days: 30 },
+  { code: "PMBELT (Tape)", business_days: 8 },
   { code: "Domestic Blank", business_days: 3 },
   { code: "USA Blank", business_days: 8 },
   { code: "Apparel Blank", business_days: 3 },
-  { code: "PMBelt Blank", business_days: 3 },
+  { code: "PMBELT Blank", business_days: 3 },
 ];
 
 const DOMESTIC_CODES = new Set(DOMESTIC_PROGRAMS.map((p) => p.code));
+
+const getChicagoUpdateStamp = () => {
+  const now = new Date();
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    month: "numeric",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).format(now);
+};
 
 export default function App() {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [selected, setSelected] = useState("");
   const [activeTab, setActiveTab] = useState("home");
-  const [notes, setNotes] = useState(() => localStorage.getItem("leadtime_notes") || "");
   const [selectedPolicyType, setSelectedPolicyType] = useState("DOMESTIC");
+  const [updates, setUpdates] = useState(() => {
+    try {
+      const stored = localStorage.getItem("leadtime_updates");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        const merged = mergeUpdates(parsed);
+        if (JSON.stringify(merged) !== stored) {
+          localStorage.setItem("leadtime_updates", JSON.stringify(merged));
+        }
+        return merged;
+      }
+    } catch {}
+    return mergeUpdates([]);
+  });
+  const [updateContent, setUpdateContent] = useState("");
+  const [updateMessage, setUpdateMessage] = useState("");
+  const [pinValue, setPinValue] = useState("");
+  const [isPinUnlocked, setIsPinUnlocked] = useState(false);
+  const [pinError, setPinError] = useState("");
 
   const policyOptions = policyCalculator.map((item) => ({ value: item.type, label: item.type }));
   // extras_texts removed (unused state)
@@ -80,10 +122,12 @@ export default function App() {
   const leadtimeStartYmd = getLeadtimeStartYMD(holidays);
 
   let selectedDate = "TBD";
+  let selectedProgramLabel = "Select a leadtime type";
   const selectedProgram = allPrograms.find((item) => item.code === selected);
   if (selectedProgram) {
     const resultYmd = addBusinessDaysFromYMD(leadtimeStartYmd, Number(selectedProgram.business_days || 0), holidays);
     selectedDate = formatChicagoDate(resultYmd);
+    selectedProgramLabel = `${selectedProgram.code} • ${selectedProgram.business_days || 0} business days`;
   }
 
   const customSelectStyles = {
@@ -157,10 +201,6 @@ export default function App() {
     return { date: s, name: holidayNameMap[s] || "Holiday" };
   });
 
-  const [notesList, setNotesList] = useState(() => JSON.parse(localStorage.getItem("leadtime_notes_named_array") || "[]"));
-  const [openViewerNote, setOpenViewerNote] = useState(null);
-  const [scratchpadVisible, setScratchpadVisible] = useState(true);
-
   // Parse columns raw into 3 arrays, collapsing duplicate lines (case/punctuation variants)
   const parsedColumns = (function parseColumns(raw) {
     if (!raw) return [[], [], []];
@@ -195,8 +235,34 @@ export default function App() {
 
   // NotesList is declared at top-level to avoid creating components during render
 
+  const tickerItems = (updates || []).slice(0, 1).map((item) => `${item.date} — ${String(item.content || "").replace(/\s+/g, " ").trim()}`);
+  const isTickerVisible = activeTab === "updates" && tickerItems.length > 0;
+
   return (
     <div style={{ display: "flex", flexDirection: "column", width: "100%", height: "100%", overflow: "hidden" }}>
+      <div
+        style={{
+          background: "linear-gradient(90deg, rgba(2,132,199,0.95), rgba(56,189,248,0.9))",
+          color: "#0f172a",
+          padding: "8px 12px",
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          fontSize: 13,
+          fontWeight: 700,
+          boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
+          opacity: isTickerVisible ? 1 : 0,
+          pointerEvents: "none",
+          maxHeight: isTickerVisible ? 40 : 0,
+          transition: "opacity 0.2s ease, max-height 0.2s ease",
+          willChange: "transform",
+        }}
+      >
+        <div style={{ display: "inline-block", paddingLeft: "100%", animation: "ticker-scroll 60s linear infinite" }}>
+          {tickerItems.concat(tickerItems).map((text, index) => (
+            <span key={`${text}-${index}`} style={{ marginRight: 48 }}>{text}</span>
+          ))}
+        </div>
+      </div>
       <div style={{ flex: 1, overflow: "auto", padding: "30px 20px 150px 20px" }}>
         <nav style={{ display: "flex", gap: 8, background: "rgba(30,41,59,0.6)", padding: 6, borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)", position: "fixed", bottom: 30, left: "50%", transform: "translateX(-50%)", zIndex: 9999 }}>
           {[
@@ -218,25 +284,37 @@ export default function App() {
                 <div style={{ fontSize: 20, color: "#cbd5e1" }}>
                   Date: <strong style={{ color: "white" }}>{todayLabel}</strong>
                 </div>
-                <Select
-                  options={options}
-                  value={options.find((o) => o.value === selected)}
-                  onChange={(opt) => setSelected(opt?.value || "")}
-                  placeholder={loading ? "Loading..." : "Select Leadtime Type..."}
-                  menuPlacement="auto"
-                  styles={customSelectStyles}
-                  menuPortalTarget={document.body}
-                  menuPosition="fixed"
-                  isSearchable={false}
-                />
+                <div style={{ position: "relative" }}>
+                  <Select
+                    options={options}
+                    value={options.find((o) => o.value === selected)}
+                    onChange={(opt) => setSelected(opt?.value || "")}
+                    placeholder={loading ? "Loading..." : "Select Leadtime Type..."}
+                    menuPlacement="auto"
+                    styles={customSelectStyles}
+                    menuPortalTarget={document.body}
+                    menuPosition="fixed"
+                    isSearchable={false}
+                    isDisabled={loading}
+                  />
+                  {loading ? (
+                    <div style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", display: "flex", alignItems: "center", gap: 8, color: "#38bdf8", fontSize: 13, fontWeight: 600, pointerEvents: "none" }}>
+                      <div style={{ width: 14, height: 14, borderRadius: "50%", border: "2px solid rgba(56,189,248,0.3)", borderTopColor: "#38bdf8", animation: "spin 0.8s linear infinite" }} />
+                      Loading
+                    </div>
+                  ) : null}
+                </div>
               </div>
 
               <div className="dashboard-card leadtime-card">
                 <div style={{ fontSize: 14, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1, fontWeight: 600 }}>
                   Leadtime Result
                 </div>
-                <div className="leadtime-date" style={{ color: selectedDate === "TBD" ? "#94a3b8" : "#38bdf8" }}>
+                <div className="leadtime-date" style={{ color: selectedDate === "TBD" ? "#94a3b8" : "#38bdf8", maxWidth: "100%" }}>
                   {selectedDate}
+                </div>
+                <div style={{ fontSize: 13, color: "#cbd5e1", marginTop: 8, overflowWrap: "anywhere", wordBreak: "break-word" }}>
+                  {selectedProgramLabel}
                 </div>
               </div>
             </div>
@@ -282,11 +360,15 @@ export default function App() {
         {activeTab === "updates" && (
           <div style={{ maxWidth: "1000px", margin: "0 auto", display: "flex", flexDirection: "column", gap: 20, paddingLeft: "20px", paddingRight: "20px" }}>
             <h2 style={{ fontSize: 28, marginBottom: 10, color: "white" }}>Updates Log</h2>
-            <p style={{ color: "#94a3b8", marginBottom: 10 }}>The following are recent announcements and policy updates.</p>
-            
+            <p style={{ color: "#94a3b8", marginBottom: 10 }}>Recent announcements and policy updates.</p>
+
             <div style={{ background: "rgba(30,41,59,0.4)", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(56,189,248,0.2)", width: "100%", boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)" }}>
+              <div style={{ padding: 16, borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                <div style={{ fontSize: 13, color: "#38bdf8", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>Live Updates</div>
+              </div>
+
               {/* Header row */}
-              <div style={{ display: "grid", gridTemplateColumns: "180px 1fr", borderBottom: "2px solid rgba(56,189,248,0.3)" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "220px 1fr", borderBottom: "2px solid rgba(56,189,248,0.3)" }}>
                 <div style={{ padding: 16, background: 'rgba(56,189,248,0.1)', fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase', fontSize: 13, borderRight: '1px solid rgba(56,189,248,0.2)' }}>Date</div>
                 <div style={{ padding: 16, background: 'rgba(56,189,248,0.1)', fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase', fontSize: 13 }}>Update</div>
               </div>
@@ -295,12 +377,25 @@ export default function App() {
               <div>
                 {updates && updates.length > 0 ? (
                   updates.map((item, idx) => (
-                    <div key={idx} style={{ display: "grid", gridTemplateColumns: "180px 1fr", borderBottom: idx < updates.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
-                      <div style={{ padding: 16, color: '#38bdf8', fontWeight: 700, borderRight: '1px solid rgba(255,255,255,0.05)', fontFamily: "monospace", fontSize: 14 }}>
+                    <div key={idx} style={{ display: "grid", gridTemplateColumns: "220px 1fr auto", borderBottom: idx < updates.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+                      <div style={{ padding: 16, color: '#38bdf8', fontWeight: 700, borderRight: '1px solid rgba(255,255,255,0.05)', fontFamily: "monospace", fontSize: 14, overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
                         {item.date}
                       </div>
                       <div style={{ padding: 16, color: '#e2e8f0', lineHeight: 1.6, fontSize: 14, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                         {item.content}
+                      </div>
+                      <div style={{ padding: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', borderLeft: '1px solid rgba(255,255,255,0.05)' }}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const next = updates.filter((_, i) => i !== idx);
+                            setUpdates(next);
+                            localStorage.setItem('leadtime_updates', JSON.stringify(next));
+                          }}
+                          style={{ background: 'rgba(248,113,113,0.12)', border: '1px solid rgba(248,113,113,0.3)', color: '#fda4af', borderRadius: 999, padding: '6px 10px', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}
+                        >
+                          Delete
+                        </button>
                       </div>
                     </div>
                   ))
@@ -389,76 +484,95 @@ export default function App() {
         )}
 
         {activeTab === 'notes' && (
-          <div style={{ maxWidth: "100%", margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 20, paddingLeft: "20px", paddingRight: "20px" }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
-                <div>
-                  <h2 style={{ fontSize: 28, marginBottom: 6, color: 'white' }}>Scratchpad Notes</h2>
-                </div>
-                <button onClick={() => setScratchpadVisible(v => !v)} style={{ background: scratchpadVisible ? 'rgba(56,189,248,0.15)' : 'rgba(34,197,94,0.18)', border: `1px solid ${scratchpadVisible ? 'rgba(56,189,248,0.4)' : 'rgba(34,197,94,0.5)'}`, color: scratchpadVisible ? '#38bdf8' : '#86efac', borderRadius: 999, padding: '10px 18px', cursor: 'pointer', fontSize: 13, fontWeight: 700 }}>{scratchpadVisible ? 'Hide Scratchpad' : '+ Create note'}</button>
-              </div>
+          <div style={{ maxWidth: "900px", margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 20, paddingLeft: "20px", paddingRight: "20px" }}>
+            <div style={{ background: 'rgba(30,41,59,0.5)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: 18 }}>
+              <div style={{ fontSize: 28, marginBottom: 6, color: 'white' }}>Notes</div>
+              <div style={{ fontSize: 13, color: '#94a3b8', marginBottom: 16 }}>Add updates here. They will appear in the Updates tab with the current Chicago date and time.</div>
 
-              {scratchpadVisible && (
-                <div style={{ background: 'rgba(30,41,59,0.5)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding:18 }}>
-<textarea
-  value={notes}
-  onChange={(e) => {
-    setNotes(e.target.value);
-    localStorage.setItem('leadtime_notes', e.target.value);
-  }}
-  draggable={false}
-  style={{
-    width: '95%',
-    minHeight: 200,
-    background: 'rgba(15,23,42,0.7)',
-    border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: 14,
-    padding: 18,
-    color: 'white',
-    resize: 'none',
-    overflowY: 'auto',
-    overflowX: 'hidden',
-    wordBreak: 'break-word',
-    whiteSpace: 'pre-wrap',
-    outline: 'none',
-    cursor: 'text'
-  }}
-/>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, flexWrap: 'wrap', gap: 10 }}>
-                    <span style={{ fontSize: 13, color: '#64748b' }}>Auto-saved to Browser Storage</span>
-                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                      <button onClick={() => { if (confirm('Are you sure you want to clear your notes?')) { setNotes(''); setOpenViewerNote(null); localStorage.removeItem('leadtime_notes'); } }} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171', padding: '8px 16px', borderRadius: 8 }}>Clear Notes</button>
-                      <button onClick={() => { const titlePrompt = prompt('Save note as (enter a title):', ''); if (!titlePrompt) return; const key = 'leadtime_notes_named_array'; const existing = JSON.parse(localStorage.getItem(key) || '[]'); const note = { id: Date.now().toString(), title: titlePrompt, content: notes || '', createdAt: Date.now(), updatedAt: Date.now() }; const updated = [note, ...existing]; localStorage.setItem(key, JSON.stringify(updated)); setNotesList(updated); setNotes(''); alert(`Saved note "${titlePrompt}".`); }} style={{ background: 'linear-gradient(90deg,#06b6d4,#3b82f6)', border: 'none', color: 'white', padding: '8px 16px', borderRadius: 8 }}>Save Note</button>
-                    </div>
+              {!isPinUnlocked ? (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (pinValue === EDITOR_PIN) {
+                      setIsPinUnlocked(true);
+                      setPinError('');
+                      setPinValue('');
+                    } else {
+                      setPinError('Incorrect PIN. Please try again.');
+                    }
+                  }}
+                  style={{ display: 'flex', flexDirection: 'column', gap: 10, maxWidth: 320 }}
+                >
+                  <div style={{ fontSize: 12, color: '#fda4af', marginBottom: 6 }}>Authentication required to edit updates.</div>
+                  <label style={{ fontSize: 13, color: '#cbd5e1', fontWeight: 600 }}>Enter PIN to edit updates</label>
+                  <input
+                    type="password"
+                    value={pinValue}
+                    onChange={(e) => {
+                      setPinValue(e.target.value);
+                      if (pinError) setPinError('');
+                    }}
+                    placeholder="PIN"
+                    style={{ borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(15,23,42,0.75)', color: 'white', padding: '10px 12px' }}
+                  />
+                  <button type="submit" style={{ alignSelf: 'flex-start', background: '#38bdf8', color: '#0f172a', border: 'none', borderRadius: 999, padding: '8px 14px', fontWeight: 700, cursor: 'pointer' }}>
+                    Unlock
+                  </button>
+                  {pinError ? <div style={{ fontSize: 12, color: '#fda4af' }}>{pinError}</div> : null}
+                  <div style={{ fontSize: 12, color: '#64748b' }}></div>
+                </form>
+              ) : (
+                <>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, marginBottom: 10, flexWrap: 'wrap' }}>
+                    <div style={{ fontSize: 12, color: '#86efac' }}>Unlocked for editing</div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsPinUnlocked(false);
+                        setPinValue('');
+                        setPinError('');
+                      }}
+                      style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.12)', color: '#cbd5e1', borderRadius: 999, padding: '6px 10px', cursor: 'pointer' }}
+                    >
+                      Lock
+                    </button>
                   </div>
-                </div>
+
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const trimmedContent = updateContent.trim();
+                      if (!trimmedContent) {
+                        setUpdateMessage('Please enter update content.');
+                        return;
+                      }
+
+                      const stamp = getChicagoUpdateStamp();
+                      const nextUpdates = [{ date: stamp, content: trimmedContent }, ...sanitizeUpdates(updates)];
+                      setUpdates(nextUpdates);
+                      localStorage.setItem('leadtime_updates', JSON.stringify(nextUpdates));
+                      setUpdateContent('');
+                      setUpdateMessage('Update added successfully.');
+                    }}
+                    style={{ display: 'flex', flexDirection: 'column', gap: 10 }}
+                  >
+                    <textarea
+                      value={updateContent}
+                      onChange={(e) => {
+                        setUpdateContent(e.target.value);
+                        if (updateMessage) setUpdateMessage('');
+                      }}
+                      placeholder="Type the update content here..."
+                      rows={5}
+                      style={{ borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(15,23,42,0.75)', color: 'white', padding: '10px 12px', resize: 'vertical' }}
+                    />
+                    <button type="submit" style={{ alignSelf: 'flex-start', background: '#38bdf8', color: '#0f172a', border: 'none', borderRadius: 999, padding: '8px 14px', fontWeight: 700, cursor: 'pointer' }}>
+                      Save Update
+                    </button>
+                  </form>
+                </>
               )}
-            </div>
-
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, maxWidth: "100%" }}>
-              <div style={{ color: '#94a3b8', fontSize: 13 }}>Saved Notes</div>
-              <div style={{ background: 'rgba(15,23,42,0.5)', borderRadius: 12, padding: 8, maxHeight: '400px', overflowY: 'auto', border: '1px solid rgba(255,255,255,0.04)', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                <style>{`.savedNotesList::-webkit-scrollbar { display: none; }`}</style>
-                <NotesList items={notesList} storageKey={'leadtime_notes_named_array'} onOpen={(n)=>setOpenViewerNote(n)} onDelete={(id)=>{ const key='leadtime_notes_named_array'; const existing = JSON.parse(localStorage.getItem(key) || '[]'); const updated = existing.filter((x)=>x.id !== id); localStorage.setItem(key, JSON.stringify(updated)); setNotesList(updated); setNotes('');
-setScratchpadVisible(false); if (openViewerNote && openViewerNote.id === id) setOpenViewerNote(null); }} />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {openViewerNote && (
-          <div style={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(2,6,23,0.6)', zIndex: 20000, padding: "20px" }} onClick={()=>setOpenViewerNote(null)}>
-            <div onClick={(e)=>e.stopPropagation()} style={{ width: '100%', maxWidth: '720px', maxHeight: '80vh', overflowY: 'auto', background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: 20 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-                <div>
-                  <div style={{ fontSize: 18, fontWeight: 800 }}>{openViewerNote.title}</div>
-                  <div style={{ fontSize: 12, color: '#94a3b8' }}>{new Date(openViewerNote.createdAt).toLocaleString()}</div>
-                </div>
-                <div>
-                  <button onClick={()=>setOpenViewerNote(null)} style={{ background: 'transparent', border: 'none', color: '#60a5fa' }}>Close</button>
-                </div>
-              </div>
-              <div style={{ marginTop: 12, whiteSpace: 'pre-wrap', color: '#e6eef8' }}>{openViewerNote.content || <em>No content</em>}</div>
+              {updateMessage ? <div style={{ marginTop: 10, fontSize: 12, color: updateMessage.includes('success') ? '#86efac' : '#fda4af' }}>{updateMessage}</div> : null}
             </div>
           </div>
         )}
