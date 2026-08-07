@@ -1,6 +1,69 @@
-const updates = [
-   {
-    date: "01-01-2026",
+const seedUpdates = [ 
+
+ 
+ 
+  {
+    date: "03-08-2026 , Mon 10:26 PM",
+    content: `Hi Lionel,
+
+I wanted to share an update that your team will be seeing during
+Order Entry specifically but possibly at other stages as needed. 
+
+
+ 
+
+
+NetSuite Blackout Dates
+Workflow Update
+
+
+Update
+
+
+A new workflow has been implemented in NetSuite to prevent sales orders from being saved with ship dates that fall on weekends (Saturday/Sunday) or holidays on Imperial's blackout list.
+If a weekend or blackout holiday date is selected, NetSuite will automatically move the ship date to the next business day when the order is saved.
+The holiday blacklist is maintained by Zor.
+
+
+Purpose
+
+
+This change is intended to eliminate the need for manual ship date cleanup around weekends and holiday closures.
+
+
+CSR Takeaway
+
+
+Be aware that NetSuite may automatically adjust ship dates when a weekend or blackout holiday is selected.
+Manualcorrection of these dates should no longer be necessary.
+
+Please let me know if you have any questions or concerns.
+
+Thank you,
+Jessica`
+  },
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  {
+    date: "01-08-2026 , Sat 1:18 AM",
     content: `I received confirmation from the other CSMs and we agree on the
 below. I wanted to note that we had provided the previous instruction based on the stock issues we were experiencing within NetSuite at the time. This is no longer an issue and should be able to proceed with today's update without delays for our customers.
 
@@ -32,24 +95,6 @@ Please let me know if you have any questions.
 Thank you,
 Jessica`
   },
-  
-  
-  
-  {
-    date: "01-8-2026",
-    content: `Please note that Peter Millar orders with 60+ or 90+ ship dates do NOT qualify for Prebook Perks 🚫🎁.
-This is different from other brands such as Golf / CO / D&L ⚠️.
-
-👉 Important: Do not select any Prebook Perks (for example, Free Freight) for Peter Millar orders based only on the ship date 📅.
-
-✅ Key Action:
-Always double-check the order copy. Peter Millar orders should show NO Prebook Perks 🧾❌.
-If any perks appear, please remove them immediately.`
-  },
-  {
-    date: "03-11-2026",
-    content: "3/11/2026 . Peter Millar doesn't have minimum charges - Grace glaser"
-  }
 ];
 
-export default updates;
+export default seedUpdates;

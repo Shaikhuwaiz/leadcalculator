@@ -56,6 +56,11 @@ html, body, #root {
   100% { transform: translateX(-50%); }
 }
 
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 /* Media query for smaller screens */
 @media (max-width: 1400px) {
   :root {

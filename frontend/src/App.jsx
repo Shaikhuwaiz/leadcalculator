@@ -40,7 +40,7 @@ const mergeUpdates = (storedValue) => {
     deduped.push(item);
   }
 
-  return deduped.reverse();
+  return deduped;
 };
 
 const DOMESTIC_PROGRAMS = [
@@ -58,17 +58,25 @@ const DOMESTIC_PROGRAMS = [
 
 const DOMESTIC_CODES = new Set(DOMESTIC_PROGRAMS.map((p) => p.code));
 
-const getChicagoUpdateStamp = () => {
-  const now = new Date();
-  return new Intl.DateTimeFormat("en-US", {
+const getChicagoUpdateStamp = (inputDateTime = null) => {
+  const parsedDate = inputDateTime ? new Date(inputDateTime) : new Date();
+  const safeDate = Number.isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
+
+  const formattedDate = new Intl.DateTimeFormat("en-US", {
     timeZone: "America/Chicago",
     month: "numeric",
     day: "numeric",
     year: "numeric",
+  }).format(safeDate);
+
+  const formattedTime = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
-  }).format(now);
+  }).format(safeDate);
+
+  return `${formattedDate}, ${formattedTime}`;
 };
 
 export default function App() {
@@ -92,6 +100,11 @@ export default function App() {
     return mergeUpdates([]);
   });
   const [updateContent, setUpdateContent] = useState("");
+  const [updateDateTime, setUpdateDateTime] = useState(() => {
+    const now = new Date();
+    const localTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    return localTime;
+  });
   const [updateMessage, setUpdateMessage] = useState("");
   const [pinValue, setPinValue] = useState("");
   const [isPinUnlocked, setIsPinUnlocked] = useState(false);
@@ -99,6 +112,12 @@ export default function App() {
 
   const policyOptions = policyCalculator.map((item) => ({ value: item.type, label: item.type }));
   // extras_texts removed (unused state)
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("leadtime_updates", JSON.stringify(sanitizeUpdates(updates)));
+    } catch {}
+  }, [updates]);
 
   useEffect(() => {
     const apiBase = (import.meta.env.VITE_API_URL || "").replace(/\/+$/g, "");
@@ -299,8 +318,7 @@ export default function App() {
                   />
                   {loading ? (
                     <div style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", display: "flex", alignItems: "center", gap: 8, color: "#38bdf8", fontSize: 13, fontWeight: 600, pointerEvents: "none" }}>
-                      <div style={{ width: 14, height: 14, borderRadius: "50%", border: "2px solid rgba(56,189,248,0.3)", borderTopColor: "#38bdf8", animation: "spin 0.8s linear infinite" }} />
-                      Loading
+                      <div role="status" aria-label="Loading" style={{ width: 14, height: 14, borderRadius: "50%", border: "2px solid rgba(56,189,248,0.3)", borderTopColor: "#38bdf8", animation: "spin 0.8s linear infinite" }} />
                     </div>
                   ) : null}
                 </div>
@@ -388,9 +406,13 @@ export default function App() {
                         <button
                           type="button"
                           onClick={() => {
-                            const next = updates.filter((_, i) => i !== idx);
-                            setUpdates(next);
-                            localStorage.setItem('leadtime_updates', JSON.stringify(next));
+                            setUpdates((current) => {
+                              const next = sanitizeUpdates(current.filter((_, i) => i !== idx));
+                              try {
+                                localStorage.setItem('leadtime_updates', JSON.stringify(next));
+                              } catch {}
+                              return next;
+                            });
                           }}
                           style={{ background: 'rgba(248,113,113,0.12)', border: '1px solid rgba(248,113,113,0.3)', color: '#fda4af', borderRadius: 999, padding: '6px 10px', cursor: 'pointer', fontSize: 12, fontWeight: 700 }}
                         >
@@ -547,15 +569,26 @@ export default function App() {
                         return;
                       }
 
-                      const stamp = getChicagoUpdateStamp();
+                      const stamp = getChicagoUpdateStamp(updateDateTime);
                       const nextUpdates = [{ date: stamp, content: trimmedContent }, ...sanitizeUpdates(updates)];
                       setUpdates(nextUpdates);
-                      localStorage.setItem('leadtime_updates', JSON.stringify(nextUpdates));
                       setUpdateContent('');
+                      setUpdateDateTime(() => {
+                        const now = new Date();
+                        const localTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+                        return localTime;
+                      });
                       setUpdateMessage('Update added successfully.');
                     }}
                     style={{ display: 'flex', flexDirection: 'column', gap: 10 }}
                   >
+                    <label style={{ fontSize: 13, color: '#cbd5e1', fontWeight: 600 }}>Update date & time</label>
+                    <input
+                      type="datetime-local"
+                      value={updateDateTime}
+                      onChange={(e) => setUpdateDateTime(e.target.value)}
+                      style={{ borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(15,23,42,0.75)', color: 'white', padding: '10px 12px' }}
+                    />
                     <textarea
                       value={updateContent}
                       onChange={(e) => {
