@@ -56,6 +56,16 @@ html, body, #root {
   100% { transform: translateX(-50%); }
 }
 
+.lc-spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(56, 189, 248, 0.3);
+  border-top-color: #38bdf8;
+  animation: spin 0.8s linear infinite;
+  will-change: transform;
+}
+
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }

@@ -8,6 +8,12 @@ import Select from "react-select";
 import columnsRaw from "./utils/columns.js";
 import policyCalculator from "./utils/policycalculator";
 import seedUpdates from "./utils/update";
+import {
+  formatISTDate,
+  normalizeUpdateDateToUtcIso,
+  stampUpdateDateTimeIST,
+  getISTNowLocalInput,
+} from "./utils/updateDate";
 
 const EDITOR_PIN = "7860";
 const BLOCKED_UPDATE_CONTENTS = new Set(["dsds", "sdsdsdsdsd"]);
@@ -26,9 +32,14 @@ const sanitizeUpdates = (value) => {
   });
 };
 
+const normalizeItemDate = (item) => ({
+  ...item,
+  date: normalizeUpdateDateToUtcIso(item.date),
+});
+
 const mergeUpdates = (storedValue) => {
-  const seedEntries = sanitizeUpdates(seedUpdates || []);
-  const storedEntries = sanitizeUpdates(storedValue);
+  const seedEntries = sanitizeUpdates(seedUpdates || []).map(normalizeItemDate);
+  const storedEntries = sanitizeUpdates(storedValue).map(normalizeItemDate);
   const merged = [...storedEntries, ...seedEntries];
   const seen = new Set();
   const deduped = [];
@@ -58,27 +69,6 @@ const DOMESTIC_PROGRAMS = [
 
 const DOMESTIC_CODES = new Set(DOMESTIC_PROGRAMS.map((p) => p.code));
 
-const getChicagoUpdateStamp = (inputDateTime = null) => {
-  const parsedDate = inputDateTime ? new Date(inputDateTime) : new Date();
-  const safeDate = Number.isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
-
-  const formattedDate = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/Chicago",
-    month: "numeric",
-    day: "numeric",
-    year: "numeric",
-  }).format(safeDate);
-
-  const formattedTime = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/Chicago",
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  }).format(safeDate);
-
-  return `${formattedDate}, ${formattedTime}`;
-};
-
 export default function App() {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
@@ -100,11 +90,7 @@ export default function App() {
     return mergeUpdates([]);
   });
   const [updateContent, setUpdateContent] = useState("");
-  const [updateDateTime, setUpdateDateTime] = useState(() => {
-    const now = new Date();
-    const localTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-    return localTime;
-  });
+  const [updateDateTime, setUpdateDateTime] = useState(() => getISTNowLocalInput());
   const [updateMessage, setUpdateMessage] = useState("");
   const [pinValue, setPinValue] = useState("");
   const [isPinUnlocked, setIsPinUnlocked] = useState(false);
@@ -254,7 +240,7 @@ export default function App() {
 
   // NotesList is declared at top-level to avoid creating components during render
 
-  const tickerItems = (updates || []).slice(0, 1).map((item) => `${item.date} — ${String(item.content || "").replace(/\s+/g, " ").trim()}`);
+  const tickerItems = (updates || []).slice(0, 1).map((item) => `${formatISTDate(item.date)} — ${String(item.content || "").replace(/\s+/g, " ").trim()}`);
   const isTickerVisible = activeTab === "updates" && tickerItems.length > 0;
 
   return (
@@ -318,7 +304,7 @@ export default function App() {
                   />
                   {loading ? (
                     <div style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", display: "flex", alignItems: "center", gap: 8, color: "#38bdf8", fontSize: 13, fontWeight: 600, pointerEvents: "none" }}>
-                      <div role="status" aria-label="Loading" style={{ width: 14, height: 14, borderRadius: "50%", border: "2px solid rgba(56,189,248,0.3)", borderTopColor: "#38bdf8", animation: "spin 0.8s linear infinite" }} />
+                      <div role="status" aria-label="Loading" className="lc-spinner" />
                     </div>
                   ) : null}
                 </div>
@@ -397,7 +383,7 @@ export default function App() {
                   updates.map((item, idx) => (
                     <div key={idx} style={{ display: "grid", gridTemplateColumns: "220px 1fr auto", borderBottom: idx < updates.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
                       <div style={{ padding: 16, color: '#38bdf8', fontWeight: 700, borderRight: '1px solid rgba(255,255,255,0.05)', fontFamily: "monospace", fontSize: 14, overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
-                        {item.date}
+                        {formatISTDate(item.date)}
                       </div>
                       <div style={{ padding: 16, color: '#e2e8f0', lineHeight: 1.6, fontSize: 14, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                         {item.content}
@@ -509,7 +495,7 @@ export default function App() {
           <div style={{ maxWidth: "900px", margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 20, paddingLeft: "20px", paddingRight: "20px" }}>
             <div style={{ background: 'rgba(30,41,59,0.5)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: 18 }}>
               <div style={{ fontSize: 28, marginBottom: 6, color: 'white' }}>Notes</div>
-              <div style={{ fontSize: 13, color: '#94a3b8', marginBottom: 16 }}>Add updates here. They will appear in the Updates tab with the current Chicago date and time.</div>
+              <div style={{ fontSize: 13, color: '#94a3b8', marginBottom: 16 }}>Add updates here. They will appear in the Updates tab with the current Indian (IST) date and time.</div>
 
               {!isPinUnlocked ? (
                 <form
@@ -569,15 +555,11 @@ export default function App() {
                         return;
                       }
 
-                      const stamp = getChicagoUpdateStamp(updateDateTime);
+                      const stamp = stampUpdateDateTimeIST(updateDateTime);
                       const nextUpdates = [{ date: stamp, content: trimmedContent }, ...sanitizeUpdates(updates)];
                       setUpdates(nextUpdates);
                       setUpdateContent('');
-                      setUpdateDateTime(() => {
-                        const now = new Date();
-                        const localTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-                        return localTime;
-                      });
+                      setUpdateDateTime(getISTNowLocalInput());
                       setUpdateMessage('Update added successfully.');
                     }}
                     style={{ display: 'flex', flexDirection: 'column', gap: 10 }}
