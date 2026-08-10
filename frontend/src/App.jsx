@@ -292,24 +292,36 @@ export default function App() {
                   Date: <strong style={{ color: "white" }}>{todayLabel}</strong>
                 </div>
                 <div style={{ position: "relative", minHeight: 58 }}>
-                  <Select
-                    options={options}
-                    value={loading ? null : options.find((o) => o.value === selected)}
-                    onChange={(opt) => setSelected(opt?.value || "")}
-                    placeholder={loading ? "Loading..." : "Select Leadtime Type..."}
-                    menuPlacement="auto"
-                    styles={customSelectStyles}
-                    components={loading ? { DropdownIndicator: () => null, IndicatorSeparator: () => null } : undefined}
-                    menuPortalTarget={document.body}
-                    menuPosition="fixed"
-                    isSearchable={false}
-                    isDisabled={loading}
-                  />
                   {loading ? (
-                    <div style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", display: "flex", alignItems: "center", gap: 8, color: "white", fontSize: 13, fontWeight: 600, pointerEvents: "none" }}>
+                    <div style={{
+                      width: "100%",
+                      minHeight: 58,
+                      display: "flex",
+                      alignItems: "center",
+                      padding: "0 14px",
+                      borderRadius: 12,
+                      backgroundColor: "#1e293b",
+                      border: "1px solid #334155",
+                      color: "white",
+                      fontSize: 13,
+                      fontWeight: 600,
+                    }}>
                       <TextDots style={{ color: "white" }}>Loading</TextDots>
                     </div>
-                  ) : null}
+                  ) : (
+                    <Select
+                      options={options}
+                      value={options.find((o) => o.value === selected)}
+                      onChange={(opt) => setSelected(opt?.value || "")}
+                      placeholder="Select Leadtime Type..."
+                      menuPlacement="auto"
+                      styles={customSelectStyles}
+                      menuPortalTarget={document.body}
+                      menuPosition="fixed"
+                      isSearchable={false}
+                      isDisabled={false}
+                    />
+                  )}
                 </div>
               </div>
 
