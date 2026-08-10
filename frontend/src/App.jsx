@@ -14,6 +14,7 @@ import {
   stampUpdateDateTimeIST,
   getISTNowLocalInput,
 } from "./utils/updateDate";
+import { TextDots } from "@/components/loading-ui/text-dots";
 
 const EDITOR_PIN = "7860";
 const BLOCKED_UPDATE_CONTENTS = new Set(["dsds", "sdsdsdsdsd"]);
@@ -57,9 +58,10 @@ const mergeUpdates = (storedValue) => {
 const DOMESTIC_PROGRAMS = [
   { code: "Domestic", business_days: 8 },
   { code: "USA", business_days: 14 },
-  { code: "STAFF", business_days: 15 },
-  { code: "Apparel DTG", business_days: 30 },
-  { code: "PMBELT (Vulcan)", business_days: 30 },
+  { code: "STAFF", business_days: 14 },
+  { code: "Apparel DTG", business_days: 14 },
+  { code: " Apparel & PM DTP", business_days: 10 },
+  { code: "PMBELT (Vulcan)", business_days: 10 },
   { code: "PMBELT (Tape)", business_days: 8 },
   { code: "Domestic Blank", business_days: 3 },
   { code: "USA Blank", business_days: 8 },
@@ -304,7 +306,7 @@ export default function App() {
                   />
                   {loading ? (
                     <div style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", display: "flex", alignItems: "center", gap: 8, color: "#38bdf8", fontSize: 13, fontWeight: 600, pointerEvents: "none" }}>
-                      <div role="status" aria-label="Loading" className="lc-spinner" />
+                      <TextDots className="text-xl font-medium">Loading</TextDots>
                     </div>
                   ) : null}
                 </div>
