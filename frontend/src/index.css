@@ -71,6 +71,21 @@ html, body, #root {
   to { transform: rotate(360deg); }
 }
 
+@keyframes text-dots {
+  0%, 20% {
+    opacity: 0.2;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+  100% {
+    opacity: 0.2;
+    transform: translateY(0);
+  }
+}
+
 /* Media query for smaller screens */
 @media (max-width: 1400px) {
   :root {

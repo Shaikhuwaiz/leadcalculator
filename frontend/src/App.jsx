@@ -296,7 +296,7 @@ export default function App() {
                     options={options}
                     value={options.find((o) => o.value === selected)}
                     onChange={(opt) => setSelected(opt?.value || "")}
-                    placeholder={loading ? "Loading..." : "Select Leadtime Type..."}
+                    placeholder="Select Leadtime Type..."
                     menuPlacement="auto"
                     styles={customSelectStyles}
                     menuPortalTarget={document.body}
@@ -306,7 +306,7 @@ export default function App() {
                   />
                   {loading ? (
                     <div style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", display: "flex", alignItems: "center", gap: 8, color: "#38bdf8", fontSize: 13, fontWeight: 600, pointerEvents: "none" }}>
-                      <TextDots className="text-xl font-medium">Loading</TextDots>
+                      <TextDots style={{ color: "#38bdf8" }}>Loading</TextDots>
                     </div>
                   ) : null}
                 </div>
