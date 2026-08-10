@@ -291,24 +291,24 @@ export default function App() {
                 <div style={{ fontSize: 20, color: "#cbd5e1" }}>
                   Date: <strong style={{ color: "white" }}>{todayLabel}</strong>
                 </div>
-                <div style={{ position: "relative" }}>
-                  <Select
-                    options={options}
-                    value={options.find((o) => o.value === selected)}
-                    onChange={(opt) => setSelected(opt?.value || "")}
-                    placeholder="Select Leadtime Type..."
-                    menuPlacement="auto"
-                    styles={customSelectStyles}
-                    menuPortalTarget={document.body}
-                    menuPosition="fixed"
-                    isSearchable={false}
-                    isDisabled={loading}
-                  />
+                <div style={{ position: "relative", minHeight: 58 }}>
                   {loading ? (
-                    <div style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", display: "flex", alignItems: "center", gap: 8, color: "#38bdf8", fontSize: 13, fontWeight: 600, pointerEvents: "none" }}>
+                    <div style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", display: "flex", alignItems: "center", gap: 8, color: "#38bdf8", fontSize: 13, fontWeight: 600, pointerEvents: "none" }}>
                       <TextDots style={{ color: "#38bdf8" }}>Loading</TextDots>
                     </div>
-                  ) : null}
+                  ) : (
+                    <Select
+                      options={options}
+                      value={options.find((o) => o.value === selected)}
+                      onChange={(opt) => setSelected(opt?.value || "")}
+                      placeholder="Select Leadtime Type..."
+                      menuPlacement="auto"
+                      styles={customSelectStyles}
+                      menuPortalTarget={document.body}
+                      menuPosition="fixed"
+                      isSearchable={false}
+                    />
+                  )}
                 </div>
               </div>
 
