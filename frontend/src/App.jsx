@@ -14,7 +14,7 @@ import {
   stampUpdateDateTimeIST,
   getISTNowLocalInput,
 } from "./utils/updateDate";
-import { TextDots } from "@/components/loading-ui/text-dots";
+import { TextShimmer } from "@/components/loading-ui/text-shimmer";
 
 const EDITOR_PIN = "7860";
 const BLOCKED_UPDATE_CONTENTS = new Set(["dsds", "sdsdsdsdsd"]);
@@ -293,20 +293,8 @@ export default function App() {
                 </div>
                 <div style={{ position: "relative", minHeight: 58 }}>
                   {loading ? (
-                    <div style={{
-                      width: "100%",
-                      minHeight: 58,
-                      display: "flex",
-                      alignItems: "center",
-                      padding: "0 14px",
-                      borderRadius: 12,
-                      backgroundColor: "#1e293b",
-                      border: "1px solid #334155",
-                      color: "white",
-                      fontSize: 13,
-                      fontWeight: 600,
-                    }}>
-                      <TextDots style={{ color: "white" }}>Loading</TextDots>
+                    <div style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", display: "flex", alignItems: "center", gap: 8, color: "#38bdf8", fontSize: 13, fontWeight: 600, pointerEvents: "none" }}>
+                      <TextShimmer className="text-xl font-medium">Loading...</TextShimmer>
                     </div>
                   ) : (
                     <Select
@@ -319,7 +307,6 @@ export default function App() {
                       menuPortalTarget={document.body}
                       menuPosition="fixed"
                       isSearchable={false}
-                      isDisabled={false}
                     />
                   )}
                 </div>
