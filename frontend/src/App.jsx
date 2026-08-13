@@ -64,7 +64,7 @@ const DOMESTIC_PROGRAMS = [
   { code: "PMBELT (Vulcan)", business_days: 10 },
   { code: "PMBELT (Tape)", business_days: 8 },
   { code: "Domestic Blank", business_days: 3 },
-  { code: "USA Blank", business_days: 8 },
+  { code: "USA Blank", business_days: 14 },
   { code: "Apparel Blank", business_days: 3 },
   { code: "PMBELT Blank", business_days: 3 },
 ];
