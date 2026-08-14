@@ -293,7 +293,7 @@ export default function App() {
                 </div>
                 <div style={{ position: "relative", minHeight: 58 }}>
                   {loading ? (
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", height: 58, minHeight: 58, paddingLeft: 16, backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: 12, boxSizing: "border-box", color: "#38bdf8", fontWeight: 600 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", height: 58, minHeight: 58, paddingLeft: 16, backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: 12, boxSizing: "border-box", color: "white", fontWeight: 600 }}>
                       <TextDots className="text-2xl font-medium">Loading</TextDots>
                     </div>
                   ) : (
