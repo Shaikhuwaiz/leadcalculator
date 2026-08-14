@@ -80,6 +80,21 @@ html, body, #root {
   }
 }
 
+@keyframes text-dots {
+  0%, 20% {
+    opacity: 0.25;
+    transform: translateY(2px);
+  }
+  40%, 60% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+  80%, 100% {
+    opacity: 0.25;
+    transform: translateY(2px);
+  }
+}
+
 /* Media query for smaller screens */
 @media (max-width: 1400px) {
   :root {
