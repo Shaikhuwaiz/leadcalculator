@@ -293,8 +293,8 @@ export default function App() {
                 </div>
                 <div style={{ position: "relative", minHeight: 58 }}>
                   {loading ? (
-                    <div style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", display: "flex", alignItems: "center", gap: 8, color: "#38bdf8", fontSize: 13, fontWeight: 600, pointerEvents: "none" }}>
-                      <TextShimmer className="text-4xl font-medium">loading...</TextShimmer>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", height: 58, minHeight: 58, paddingLeft: 16, backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: 12, boxSizing: "border-box", color: "#38bdf8", fontWeight: 600 }}>
+                      <TextShimmer className="text-2xl font-medium">loading...</TextShimmer>
                     </div>
                   ) : (
                     <Select
