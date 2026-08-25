@@ -2,9 +2,12 @@ import os
 import json
 import time
 import threading
+import logging
 from pathlib import Path
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+
+logger = logging.getLogger(__name__)
 
 # When running in production you may set SHEET_CACHE_PATH and SHEET_CACHE_TTL
 CACHE_PATH = Path(os.environ.get("SHEET_CACHE_PATH", "./.sheet_cache.json"))
@@ -15,22 +18,44 @@ scope = [
     "https://www.googleapis.com/auth/drive"
 ]
 
+# In-memory cache: avoids disk reads on every request
+_mem_cache = {"ts": 0, "programs": None}
+_mem_lock = threading.Lock()
+
 
 def _write_cache(programs):
+    """Write to both in-memory and file cache."""
     try:
-        CACHE_PATH.write_text(json.dumps({
-            "ts": int(time.time()),
-            "programs": programs
-        }))
+        now = int(time.time())
+        with _mem_lock:
+            _mem_cache["ts"] = now
+            _mem_cache["programs"] = programs
+        CACHE_PATH.write_text(json.dumps({"ts": now, "programs": programs}))
     except Exception:
         pass
 
 
 def _read_cache():
+    """Read from in-memory cache first, fall back to file."""
+    now = int(time.time())
+
+    # Fast path: check in-memory cache
+    with _mem_lock:
+        if _mem_cache["programs"] is not None and (now - _mem_cache["ts"]) <= CACHE_TTL:
+            return {"ts": _mem_cache["ts"], "programs": _mem_cache["programs"]}
+
+    # Slow path: read from file and hydrate memory cache
     try:
         if not CACHE_PATH.exists():
             return None
         raw = json.loads(CACHE_PATH.read_text())
+        ts = int(raw.get("ts", 0))
+        programs = raw.get("programs", [])
+        # Hydrate in-memory cache if file is still fresh
+        if (now - ts) <= CACHE_TTL:
+            with _mem_lock:
+                _mem_cache["ts"] = ts
+                _mem_cache["programs"] = programs
         return raw
     except Exception:
         return None
@@ -134,6 +159,26 @@ def get_sheet_data():
     programs = _fetch_sheet()
     _write_cache(programs)
     return programs
+
+
+def prewarm_cache():
+    """
+    Pre-fetch Google Sheets data on server startup so the first API request
+    is served from cache instantly instead of blocking on network I/O.
+    Safe to call multiple times -- only fetches if cache is empty or stale.
+    """
+    try:
+        raw = _read_cache()
+        now = int(time.time())
+        if raw and (now - int(raw.get("ts", 0))) <= CACHE_TTL:
+            logger.info("Cache already fresh, skipping prewarm")
+            return
+        logger.info("Pre-warming sheet cache...")
+        programs = _fetch_sheet()
+        _write_cache(programs)
+        logger.info("Cache pre-warmed with %d programs", len(programs))
+    except Exception as e:
+        logger.warning("Cache prewarm failed: %s", e)
 
 
 def try_process_with_gpu(programs):

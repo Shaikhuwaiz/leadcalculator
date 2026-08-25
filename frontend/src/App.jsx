@@ -57,7 +57,7 @@ const mergeUpdates = (storedValue) => {
 
 const DOMESTIC_PROGRAMS = [
   { code: "Domestic", business_days: 8 },
-  { code: "USA", business_days: 14 },
+  { code: "USA", business_days: 30 },
   { code: "STAFF", business_days: 14 },
   { code: "Apparel DTG", business_days: 17 },
   { code: " Apparel & PM DTP", business_days: 10 },
