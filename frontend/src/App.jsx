@@ -247,49 +247,42 @@ export default function App() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", width: "100%", height: "100%", overflow: "hidden" }}>
-      {loading ? (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1, gap: 16 }}>
-          <div className="lc-spinner" style={{ width: 36, height: 36, borderWidth: 3 }} />
-          <TextDots style={{ fontSize: 18, fontWeight: 600, color: "#94a3b8" }}>Loading</TextDots>
+      <div
+        style={{
+          background: "linear-gradient(90deg, rgba(2,132,199,0.95), rgba(56,189,248,0.9))",
+          color: "#0f172a",
+          padding: "8px 12px",
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          fontSize: 13,
+          fontWeight: 700,
+          boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
+          opacity: isTickerVisible ? 1 : 0,
+          pointerEvents: "none",
+          maxHeight: isTickerVisible ? 40 : 0,
+          transition: "opacity 0.2s ease, max-height 0.2s ease",
+          willChange: "transform",
+        }}
+      >
+        <div style={{ display: "inline-block", paddingLeft: "100%", animation: "ticker-scroll 60s linear infinite" }}>
+          {tickerItems.concat(tickerItems).map((text, index) => (
+            <span key={`${text}-${index}`} style={{ marginRight: 48 }}>{text}</span>
+          ))}
         </div>
-      ) : (
-        <>
-          <div
-            style={{
-              background: "linear-gradient(90deg, rgba(2,132,199,0.95), rgba(56,189,248,0.9))",
-              color: "#0f172a",
-              padding: "8px 12px",
-              overflow: "hidden",
-              whiteSpace: "nowrap",
-              fontSize: 13,
-              fontWeight: 700,
-              boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
-              opacity: isTickerVisible ? 1 : 0,
-              pointerEvents: "none",
-              maxHeight: isTickerVisible ? 40 : 0,
-              transition: "opacity 0.2s ease, max-height 0.2s ease",
-              willChange: "transform",
-            }}
-          >
-            <div style={{ display: "inline-block", paddingLeft: "100%", animation: "ticker-scroll 60s linear infinite" }}>
-              {tickerItems.concat(tickerItems).map((text, index) => (
-                <span key={`${text}-${index}`} style={{ marginRight: 48 }}>{text}</span>
-              ))}
-            </div>
-          </div>
-          <div style={{ flex: 1, overflow: "auto", padding: "30px 20px 150px 20px" }}>
-            <nav style={{ display: "flex", gap: 8, background: "rgba(30,41,59,0.6)", padding: 6, borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)", position: "fixed", bottom: 30, left: "50%", transform: "translateX(-50%)", zIndex: 9999 }}>
-              {[
-                { id: "home", label: "Home" },
-                { id: "policy_calculator", label: "Policy" },
-                { id: "updates", label: "Updates" },
-                { id: "extras", label: "Extras" },
-                { id: "holiday", label: "Holiday" },
-                { id: "notes", label: "Notes" }
-              ].map((tab) => (
-                <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ background: activeTab === tab.id ? "#38bdf8" : "transparent", color: activeTab === tab.id ? "#0f172a" : "#cbd5e1", border: "none", padding: "10px 24px", borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>{tab.label}</button>
-              ))}
-            </nav>
+      </div>
+      <div style={{ flex: 1, overflow: "auto", padding: "30px 20px 150px 20px" }}>
+        <nav style={{ display: "flex", gap: 8, background: "rgba(30,41,59,0.6)", padding: 6, borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)", position: "fixed", bottom: 30, left: "50%", transform: "translateX(-50%)", zIndex: 9999 }}>
+          {[
+            { id: "home", label: "Home" },
+            { id: "policy_calculator", label: "Policy" },
+            { id: "updates", label: "Updates" },
+            { id: "extras", label: "Extras" },
+            { id: "holiday", label: "Holiday" },
+            { id: "notes", label: "Notes" }
+          ].map((tab) => (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ background: activeTab === tab.id ? "#38bdf8" : "transparent", color: activeTab === tab.id ? "#0f172a" : "#cbd5e1", border: "none", padding: "10px 24px", borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>{tab.label}</button>
+          ))}
+        </nav>
 
         {activeTab === "home" && (
           <div className="dashboard-grid" style={{ position: "relative", zIndex: 10 }}>
@@ -299,6 +292,11 @@ export default function App() {
                   Date: <strong style={{ color: "white" }}>{todayLabel}</strong>
                 </div>
                 <div style={{ position: "relative", minHeight: 58 }}>
+                  {loading ? (
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", height: 58, minHeight: 58, paddingLeft: 16, backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: 12, boxSizing: "border-box", color: "white", fontWeight: 600 }}>
+                      <TextDots>Loading</TextDots>
+                    </div>
+                  ) : (
                     <Select
                       options={options}
                       value={options.find((o) => o.value === selected)}
@@ -310,6 +308,7 @@ export default function App() {
                       menuPosition="fixed"
                       isSearchable={false}
                     />
+                  )}
                 </div>
               </div>
 
@@ -596,8 +595,6 @@ export default function App() {
         )}
 
       </div>
-        </>
-      )}
     </div>
   );
 }
