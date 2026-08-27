@@ -13,6 +13,14 @@ logger = logging.getLogger(__name__)
 CACHE_PATH = Path(os.environ.get("SHEET_CACHE_PATH", "./.sheet_cache.json"))
 CACHE_TTL = int(os.environ.get("SHEET_CACHE_TTL", "300"))  # seconds
 
+# Redis connection settings. Leave REDIS_URL empty to use host/port/db.
+REDIS_URL = os.environ.get("REDIS_URL", "")
+REDIS_HOST = os.environ.get("REDIS_HOST", "127.0.0.1")
+REDIS_PORT = int(os.environ.get("REDIS_PORT", "6379"))
+REDIS_DB = int(os.environ.get("REDIS_DB", "0"))
+REDIS_KEY = os.environ.get("SHEET_CACHE_REDIS_KEY", "leadtime:sheet_programs")
+REDIS_MAX_STALE = int(os.environ.get("SHEET_CACHE_MAX_STALE", str(CACHE_TTL * 4)))  # keep stale data available for background refresh
+
 scope = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/drive"
@@ -22,22 +30,83 @@ scope = [
 _mem_cache = {"ts": 0, "programs": None}
 _mem_lock = threading.Lock()
 
+# Lazy Redis client; shared so multiple workers/processes can serve the same cache.
+_redis_client = None
+_redis_client_lock = threading.Lock()
+
+
+def _get_redis():
+    """Return a connected Redis client, or None if unavailable."""
+    global _redis_client
+    if _redis_client is not None:
+        return _redis_client
+    try:
+        import redis
+    except Exception:
+        return None
+
+    with _redis_client_lock:
+        if _redis_client is not None:
+            return _redis_client
+        try:
+            kwargs = {"socket_connect_timeout": 1, "socket_timeout": 1}
+            client = (
+                redis.Redis.from_url(REDIS_URL, **kwargs)
+                if REDIS_URL
+                else redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, **kwargs)
+            )
+            client.ping()
+            _redis_client = client
+            return _redis_client
+        except Exception as e:
+            logger.warning("Redis unavailable, falling back to local cache: %s", e)
+            return None
+
 
 def _write_cache(programs):
-    """Write to both in-memory and file cache."""
+    """Write to in-memory, Redis, and file cache."""
     try:
         now = int(time.time())
+        payload = json.dumps({"ts": now, "programs": programs})
         with _mem_lock:
             _mem_cache["ts"] = now
             _mem_cache["programs"] = programs
-        CACHE_PATH.write_text(json.dumps({"ts": now, "programs": programs}))
+
+        client = _get_redis()
+        if client is not None:
+            try:
+                client.set(REDIS_KEY, payload, ex=REDIS_MAX_STALE)
+            except Exception:
+                pass
+
+        CACHE_PATH.write_text(payload)
     except Exception:
         pass
 
 
 def _read_cache():
-    """Read from in-memory cache first, fall back to file."""
+    """Read from Redis first, then in-memory cache, then a file fallback."""
     now = int(time.time())
+
+    # Fastest shared layer: Redis
+    client = _get_redis()
+    if client is not None:
+        try:
+            raw = client.get(REDIS_KEY)
+        except Exception:
+            raw = None
+        if raw:
+            try:
+                data = json.loads(raw)
+                ts = int(data.get("ts", 0))
+                programs = data.get("programs", [])
+                # Hydrate in-memory cache so repeated requests avoid Redis calls
+                with _mem_lock:
+                    _mem_cache["ts"] = ts
+                    _mem_cache["programs"] = programs
+                return data
+            except Exception:
+                pass
 
     # Fast path: check in-memory cache
     with _mem_lock:
