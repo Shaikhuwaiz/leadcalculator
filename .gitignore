@@ -2,3 +2,4 @@ backend/credentials.json
 backend/.env
 .env
 .sheet_cache.json
+run_back.*
