@@ -13,10 +13,12 @@ logger = logging.getLogger(__name__)
 CACHE_PATH = Path(os.environ.get("SHEET_CACHE_PATH", "./.sheet_cache.json"))
 CACHE_TTL = int(os.environ.get("SHEET_CACHE_TTL", "300"))  # seconds
 
-# Redis connection settings. Leave REDIS_URL empty to use host/port/db.
+# Redis connection settings. Leave REDIS_URL empty to use host/port/username/password.
 REDIS_URL = os.environ.get("REDIS_URL", "")
 REDIS_HOST = os.environ.get("REDIS_HOST", "127.0.0.1")
 REDIS_PORT = int(os.environ.get("REDIS_PORT", "6379"))
+REDIS_USERNAME = os.environ.get("REDIS_USERNAME", "")
+REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD", "")
 REDIS_DB = int(os.environ.get("REDIS_DB", "0"))
 REDIS_KEY = os.environ.get("SHEET_CACHE_REDIS_KEY", "leadtime:sheet_programs")
 REDIS_MAX_STALE = int(os.environ.get("SHEET_CACHE_MAX_STALE", str(CACHE_TTL * 4)))  # keep stale data available for background refresh
@@ -49,11 +51,24 @@ def _get_redis():
         if _redis_client is not None:
             return _redis_client
         try:
-            kwargs = {"socket_connect_timeout": 1, "socket_timeout": 1}
+            kwargs = {
+                "socket_connect_timeout": 1,
+                "socket_timeout": 1,
+                "decode_responses": True,
+            }
+            # Same pattern as the basic connection example:
+            # redis.Redis(host=..., port=..., username=..., password=...)
             client = (
                 redis.Redis.from_url(REDIS_URL, **kwargs)
                 if REDIS_URL
-                else redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, **kwargs)
+                else redis.Redis(
+                    host=REDIS_HOST,
+                    port=REDIS_PORT,
+                    db=REDIS_DB,
+                    username=REDIS_USERNAME or None,
+                    password=REDIS_PASSWORD or None,
+                    **kwargs,
+                )
             )
             client.ping()
             _redis_client = client
