@@ -4,7 +4,6 @@ gspread
 oauth2client
 gunicorn
 django-cors-headers
-redis
 python-dotenv
 
 # Optional: RAPIDS cuDF for GPU-accelerated sheet processing (Linux + NVIDIA GPU only).
