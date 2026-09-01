@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-l7%#%ez#zx0-ctf582%^z$-&4ui5icfv$u4b%_y2r18h!x$i9y
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['leadcalculator-1.onrender.com', 'localhost', '127.0.0.1']
 
 
 # Application definition
