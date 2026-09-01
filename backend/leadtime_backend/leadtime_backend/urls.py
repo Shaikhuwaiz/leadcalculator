@@ -5,7 +5,7 @@ The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/6.0/topics/http/urls/
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.http import JsonResponse
 from api.views import api
 
@@ -20,6 +20,14 @@ urlpatterns = [
     path("", root),
     path("admin/", admin.site.urls),
     path("test/", test),
-    path("api/", api.urls),  # Django Ninja API - api.urls is a 3-tuple (patterns, app_name, namespace)
 ]
+
+# Add Django Ninja API routes
+# api.urls is a tuple: (patterns, app_name, namespace)
+# We need to manually add the patterns with the "api/" prefix
+api_patterns, api_name, api_namespace = api.urls
+urlpatterns += [
+    path("api/", include((api_patterns, api_name), namespace=api_namespace))
+]
+
 
