@@ -6,9 +6,11 @@ services:
     plan: free
     rootDir: backend
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn leadtime_backend.leadtime_backend.wsgi:application --bind 0.0.0.0:$PORT --workers 2
+    startCommand: gunicorn core.wsgi:application --bind 0.0.0.0:$PORT --workers 2
     envVars:
       - key: PYTHON_VERSION
         value: 3.14.3
       - key: DEBUG
         value: 'False'
+      - key: GOOGLE_CREDENTIALS
+        sync: false
