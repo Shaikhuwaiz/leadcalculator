@@ -29,6 +29,6 @@ def root(request):
 urlpatterns = [
     path("", root),
     path("admin/", admin.site.urls),
-    path("api/", api.urls),
+    path("api/", api),
     path("test/", test),
 ]
