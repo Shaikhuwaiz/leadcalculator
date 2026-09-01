@@ -1,4 +1,3 @@
-backend/
 .env
 .sheet_cache.json
 run_back.*
