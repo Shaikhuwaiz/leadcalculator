@@ -52,7 +52,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'leadtime_backend.urls'
+ROOT_URLCONF = 'leadtime_backend.leadtime_backend.urls'
 
 TEMPLATES = [
     {
@@ -69,7 +69,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'leadtime_backend.wsgi.application'
+WSGI_APPLICATION = 'leadtime_backend.leadtime_backend.wsgi.application'
 
 
 # Database
