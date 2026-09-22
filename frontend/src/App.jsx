@@ -97,6 +97,31 @@ export default function App() {
   const [pinValue, setPinValue] = useState("");
   const [isPinUnlocked, setIsPinUnlocked] = useState(false);
   const [pinError, setPinError] = useState("");
+  const [copiedKey, setCopiedKey] = useState("");
+
+  const copyLine = async (key, text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+    }
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey((k) => (k === key ? "" : k)), 1200);
+  };
+
+  const copyRowStyle = (key) => ({
+    cursor: "pointer",
+    userSelect: "none",
+    transition: "background 0.15s ease",
+    background: copiedKey === key ? "rgba(56,189,248,0.18)" : "transparent",
+  });
 
   const policyOptions = policyCalculator.map((item) => ({ value: item.type, label: item.type }));
   // extras_texts removed (unused state)
@@ -447,9 +472,21 @@ export default function App() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 18, width: "100%" }}>
               <div style={{ padding: 18, borderRadius: 12, background: "rgba(2,6,23,0.5)", border: "1px solid rgba(255,255,255,0.04)" }}>
                 <div style={{ fontSize: 14, color: "#94a3b8", marginBottom: 8, fontWeight: 600, textTransform: "uppercase" }}>Order Entry</div>
-                <div style={{ fontSize: 16, color: "white", fontWeight: 700 }}>OE {formatChicagoDate(getTodayChicagoYMD()).slice(0,5)} AWS</div>
+                <div
+                  onClick={() => copyLine("oe-dtg", `OE ${formatChicagoDate(getTodayChicagoYMD()).slice(0,5)} AWS`)}
+                  title="Click to copy"
+                  style={{ fontSize: 16, color: "white", fontWeight: 700, ...copyRowStyle("oe-dtg"), borderRadius: 6, padding: "2px 4px", margin: "0 -4px" }}
+                >
+                  OE {formatChicagoDate(getTodayChicagoYMD()).slice(0,5)} AWS {copiedKey === "oe-dtg" ? "✓" : ""}
+                </div>
                 <div style={{ fontSize: 14, color: "#94a3b8", marginTop: 8, fontWeight: 600, textTransform: "uppercase" }}>Vulcan</div>
-                <div style={{ fontSize: 16, color: "white", fontWeight: 700 }}>OE DTG {formatChicagoDate(getTodayChicagoYMD()).slice(0,5)} AWS</div>
+                <div
+                  onClick={() => copyLine("oe-vulcan", `OE DTG ${formatChicagoDate(getTodayChicagoYMD()).slice(0,5)} AWS`)}
+                  title="Click to copy"
+                  style={{ fontSize: 16, color: "white", fontWeight: 700, ...copyRowStyle("oe-vulcan"), borderRadius: 6, padding: "2px 4px", margin: "0 -4px" }}
+                >
+                  OE DTG {formatChicagoDate(getTodayChicagoYMD()).slice(0,5)} AWS {copiedKey === "oe-vulcan" ? "✓" : ""}
+                </div>
               </div>
 
               <div style={{ padding: 18, borderRadius: 12, background: "rgba(2,6,23,0.5)", border: "1px solid rgba(255,255,255,0.04)" }}>
@@ -473,18 +510,34 @@ export default function App() {
                 {parsedColumns.map((col, colIndex) => (
                   <div key={colIndex} style={{ borderRight: colIndex<2 ? '1px solid rgba(255,255,255,0.05)' : 'none', maxHeight: "400px", overflowY: "auto" }}>
                     {col && col.length>0 ? col.map((line, li) => {
+                      const rowKey = `col-${colIndex}-line-${li}`;
                       if (colIndex === 1) {
                         const m = line.match(/^([A-Za-z0-9-]+)\s*(.*)$/);
                         const code = m ? m[1] : null;
                         const desc = m ? m[2] : line;
                         return (
-                          <div key={li} style={{ padding: '10px 12px', borderBottom: '1px solid rgba(255,255,255,0.03)', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                          <div
+                            key={li}
+                            onClick={() => copyLine(rowKey, line)}
+                            title="Click to copy"
+                            style={{ padding: '10px 12px', borderBottom: '1px solid rgba(255,255,255,0.03)', display: 'flex', gap: 10, alignItems: 'flex-start', ...copyRowStyle(rowKey) }}
+                          >
                             <div style={{ color: '#38bdf8', fontWeight: 700, minWidth: 80 }}>{code}</div>
                             <div style={{ color: '#cbd5e1', lineHeight: 1.4 }}>{desc}</div>
+                            {copiedKey === rowKey && <div style={{ marginLeft: 'auto', color: '#38bdf8', fontWeight: 700, fontSize: 12 }}>✓</div>}
                           </div>
                         );
                       }
-                      return <div key={li} style={{ padding: '10px 12px', color:'#e2e8f0', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>{line}</div>;
+                      return (
+                        <div
+                          key={li}
+                          onClick={() => copyLine(rowKey, line)}
+                          title="Click to copy"
+                          style={{ padding: '10px 12px', color:'#e2e8f0', borderBottom: '1px solid rgba(255,255,255,0.03)', ...copyRowStyle(rowKey) }}
+                        >
+                          {line} {copiedKey === rowKey && <span style={{ color: '#38bdf8', fontWeight: 700, fontSize: 12 }}>✓</span>}
+                        </div>
+                      );
                     }) : <div style={{ padding:12, color:'#64748b' }}>No data</div>}
                   </div>
                 ))}
