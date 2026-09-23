@@ -518,7 +518,7 @@ export default function App() {
                         return (
                           <div
                             key={li}
-                            onClick={() => copyLine(rowKey, line)}
+                            onClick={() => copyLine(rowKey, desc)}
                             title="Click to copy"
                             style={{ padding: '10px 12px', borderBottom: '1px solid rgba(255,255,255,0.03)', display: 'flex', gap: 10, alignItems: 'flex-start', ...copyRowStyle(rowKey) }}
                           >
