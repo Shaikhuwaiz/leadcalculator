@@ -513,11 +513,15 @@ export default function App() {
                       const rowKey = `col-${colIndex}-line-${li}`;
                       if (colIndex === 1) {
                         const { code, description } = parseColumnLine(line);
+                        const includesRef = /\bREF\b/i.test(code);
+                        const copyText = includesRef
+                          ? `${code.replace(/^\d+\s+/, "")} ${description}`
+                          : description;
                         return (
                           <div
                             key={li}
-                            onClick={() => copyLine(rowKey, description)}
-                            title="Click to copy description only"
+                            onClick={() => copyLine(rowKey, copyText)}
+                            title={includesRef ? "Click to copy REF and description" : "Click to copy description only"}
                             style={{ padding: '10px 12px', borderBottom: '1px solid rgba(255,255,255,0.03)', display: 'flex', gap: 10, alignItems: 'flex-start', ...copyRowStyle(rowKey) }}
                           >
                             <div style={{ color: '#38bdf8', fontWeight: 700, minWidth: 80 }}>{code}</div>
