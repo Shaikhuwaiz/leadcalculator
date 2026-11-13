@@ -8,7 +8,7 @@ Count Number of LineID ..Just provide the Number
 
 Column 2 =
 
-REF  ATTACHED ART AND DUPLICATE
+1  REF ATTACHED ART AND DUPLICATE
 LC THERE WILL BE LEFT CHEST PRINT
 FC THERE WILL BE FULL CHEST PRINT
 FB THERE WILL BE FULL BACK PRINT
@@ -31,5 +31,16 @@ PLEASE CREATE THE ART WITH BLANKET ONLY
 PLEASE CREATE THE ART WITH BAG ONLY
 `;
 
-export default columnsRaw;
+export const parseColumnLine = (line) => {
+  const text = String(line || "").trim();
+  const match = text.match(/^(?:(1)\s+)?(REF|LC|FC|FB|SUB|SCC|FSR|FSL|LBI|MB|RBI|FUAL|1LS)\s+(.+)$/i);
 
+  if (!match) return { code: "", description: text };
+
+  return {
+    code: [match[1], match[2]].filter(Boolean).join(" "),
+    description: match[3].trim(),
+  };
+};
+
+export default columnsRaw;
