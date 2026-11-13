@@ -8,7 +8,7 @@ Count Number of LineID ..Just provide the Number
 
 Column 2 =
 
-1 REF  ATTACHED ART AND DUPLICATE
+1  REF ATTACHED ART AND DUPLICATE
 LC THERE WILL BE LEFT CHEST PRINT
 FC THERE WILL BE FULL CHEST PRINT
 FB THERE WILL BE FULL BACK PRINT
@@ -33,7 +33,7 @@ PLEASE CREATE THE ART WITH BAG ONLY
 
 export const parseColumnLine = (line) => {
   const text = String(line || "").trim();
-  const match = text.match(/^(?:(1)\s+)?(REF|LC|FC|FB|SUB|SCC|FSR|FSL|LBI|MB|RBI|FUAL|1LS)\s+(.+)$/i);
+  const match = text.match(/^(?:(1)\s+)?(1|LC|FC|FB|SUB|SCC|FSR|FSL|LBI|MB|RBI|FUAL|1LS)\s+(.+)$/i);
 
   if (!match) return { code: "", description: text };
 
