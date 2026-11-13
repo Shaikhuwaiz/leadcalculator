@@ -5,7 +5,7 @@ import { addBusinessDaysFromYMD } from "./data/addBusinessDays";
 import { formatChicagoDate } from "./utils/chicagoDate";
 import { holidays } from "./data/holidays";
 import Select from "react-select";
-import columnsRaw from "./utils/columns.js";
+import columnsRaw, { parseColumnLine } from "./utils/columns.js";
 import policyCalculator from "./utils/policycalculator";
 import seedUpdates from "./utils/update";
 import {
@@ -512,18 +512,16 @@ export default function App() {
                     {col && col.length>0 ? col.map((line, li) => {
                       const rowKey = `col-${colIndex}-line-${li}`;
                       if (colIndex === 1) {
-                        const m = line.match(/^([A-Za-z0-9-]+)\s*(.*)$/);
-                        const code = m ? m[1] : null;
-                        const desc = m ? m[2] : line;
+                        const { code, description } = parseColumnLine(line);
                         return (
                           <div
                             key={li}
-                            onClick={() => copyLine(rowKey, desc)}
-                            title="Click to copy"
+                            onClick={() => copyLine(rowKey, description)}
+                            title="Click to copy description only"
                             style={{ padding: '10px 12px', borderBottom: '1px solid rgba(255,255,255,0.03)', display: 'flex', gap: 10, alignItems: 'flex-start', ...copyRowStyle(rowKey) }}
                           >
                             <div style={{ color: '#38bdf8', fontWeight: 700, minWidth: 80 }}>{code}</div>
-                            <div style={{ color: '#cbd5e1', lineHeight: 1.4 }}>{desc}</div>
+                            <div style={{ color: '#cbd5e1', lineHeight: 1.4 }}>{description}</div>
                             {copiedKey === rowKey && <div style={{ marginLeft: 'auto', color: '#38bdf8', fontWeight: 700, fontSize: 12 }}>✓</div>}
                           </div>
                         );
